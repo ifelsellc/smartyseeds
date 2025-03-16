@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Math Practice for Kids</title>
+    <style>
+        :root {
+            --primary: #4A6FFF;
+            --primary-light: #6B8AFF;
+            --primary-dark: #3A5FEF;
+            --correct: #00C853;
+            --wrong: #FF3D00;
+            --neutral: #9E9E9E;
+            --background: #F5F7FF;
+            --card: #FFFFFF;
+            --text: #333333;
+            --text-light: #757575;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--background);
+            color: var(--text);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .container {
+            max-width: 800px;
+            width: 100%;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            color: var(--primary);
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .card {
+            background: var(--card);
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            padding: 25px;
+            margin-bottom: 20px;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .progress-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .progress-bar {
+            height: 10px;
+            background-color: #EEF1FF;
+            border-radius: 5px;
+            flex-grow: 1;
+            margin: 0 10px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background-color: var(--primary);
+            width: 0%;
+            transition: width 0.5s ease;
+            border-radius: 5px;
+        }
+
+        .score {
+            font-weight: bold;
+            color: var(--primary);
+        }
+
+        .level-selector {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .level-btn {
+            background: var(--card);
+            border: 2px solid #EEF1FF;
+            border-radius: 8px;
+            padding: 8px 16px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            color: var(--text-light);
+        }
+
+        .level-btn:hover {
+            border-color: var(--primary-light);
+            color: var(--primary);
+        }
+
+        .level-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .problem-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 200px;
+        }
+
+        .problem {
+            font-size: 3rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .input-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .answer-input {
+            padding: 12px 20px;
+            font-size: 1.5rem;
+            border: 2px solid #EEF1FF;
+            border-radius: 8px;
+            text-align: center;
+            width: 150px;
+            outline: none;
+            transition: border 0.3s ease;
+        }
+
+        .answer-input:focus {
+            border-color: var(--primary);
+        }
+
+        .submit-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .submit-btn:hover {
+            background: var(--primary-dark);
+        }
+
+        .submit-btn:disabled {
+            background: var(--neutral);
+            cursor: not-allowed;
+        }
+
+        .feedback {
+            font-size: 1.2rem;
+            font-weight: 600;
+            text-align: center;
+            height: 30px;
+            transition: all 0.3s ease;
+        }
+
+        .correct {
+            color: var(--correct);
+        }
+
+        .wrong {
+            color: var(--wrong);
+        }
+
+        .results-container {
+            text-align: center;
+            display: none;
+        }
+
+        .results-title {
+            font-size: 1.8rem;
+            margin-bottom: 15px;
+            color: var(--primary);
+        }
+
+        .results-score {
+            font-size: 3rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .results-message {
+            font-size: 1.2rem;
+            margin-bottom: 25px;
+            color: var(--text-light);
+        }
+
+        .play-again-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 30px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .play-again-btn:hover {
+            background: var(--primary-dark);
+            transform: scale(1.05);
+        }
+
+        .problem-history {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .history-item {
+            border-radius: 8px;
+            padding: 15px;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .history-item.correct {
+            background-color: rgba(0, 200, 83, 0.1);
+            border: 1px solid var(--correct);
+        }
+
+        .history-item.wrong {
+            background-color: rgba(255, 61, 0, 0.1);
+            border: 1px solid var(--wrong);
+        }
+
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background-color: #f00;
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        @media (max-width: 600px) {
+            .problem {
+                font-size: 2.5rem;
+            }
+            
+            .level-selector {
+                gap: 8px;
+            }
+            
+            .level-btn {
+                padding: 6px 12px;
+                font-size: 0.9rem;
+            }
+
+            .answer-input {
+                width: 120px;
+                font-size: 1.3rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Math Practice</h1>
+            <p>Solve the problems and improve your math skills!</p>
+        </header>
+
+        <div class="card" id="game-card">
+            <div class="progress-container">
+                <span id="problem-counter">Problem: 1/10</span>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progress-fill"></div>
+                </div>
+                <span class="score">Score: <span id="score-display">0</span></span>
+            </div>
+
+            <div class="level-selector" id="level-selector">
+                <button class="level-btn active" data-level="1">Level 1</button>
+                <button class="level-btn" data-level="2">Level 2</button>
+                <button class="level-btn" data-level="3">Level 3</button>
+                <button class="level-btn" data-level="4">Level 4</button>
+                <button class="level-btn" data-level="5">Level 5</button>
+            </div>
+
+            <div class="problem-container">
+                <div class="problem" id="problem-display">
+                    6 + 3 = ?
+                </div>
+                <div class="input-container">
+                    <input type="number" id="answer-input" class="answer-input" placeholder="?" autofocus>
+                    <button id="submit-btn" class="submit-btn">Check</button>
+                </div>
+                <div class="feedback" id="feedback"></div>
+            </div>
+        </div>
+
+        <div class="card results-container" id="results-card">
+            <h2 class="results-title">Session Complete!</h2>
+            <div class="results-score">
+                <span id="final-score">0</span>/10
+            </div>
+            <p class="results-message" id="results-message">Keep practicing to improve your math skills!</p>
+            <button id="play-again-btn" class="play-again-btn">Play Again</button>
+
+            <div class="problem-history" id="problem-history"></div>
+        </div>
+    </div>
+
+    <script>
+        const levelSelector = document.getElementById('level-selector');
+        const problemDisplay = document.getElementById('problem-display');
+        const answerInput = document.getElementById('answer-input');
+        const submitBtn = document.getElementById('submit-btn');
+        const feedback = document.getElementById('feedback');
+        const scoreDisplay = document.getElementById('score-display');
+        const problemCounter = document.getElementById('problem-counter');
+        const progressFill = document.getElementById('progress-fill');
+        const gameCard = document.getElementById('game-card');
+        const resultsCard = document.getElementById('results-card');
+        const finalScore = document.getElementById('final-score');
+        const resultsMessage = document.getElementById('results-message');
+        const playAgainBtn = document.getElementById('play-again-btn');
+        const problemHistory = document.getElementById('problem-history');
+
+        // Game state
+        let currentLevel = 1;
+        let currentProblem = 1;
+        let score = 0;
+        let correctAnswer = null;
+        let problems = [];
+        let currentProblemData = {};
+        let isProcessingAnswer = false;
+
+        // Level configurations
+        const levels = {
+            1: { // Single digit addition
+                operations: ['+'],
+                min: 1,
+                max: 9
+            },
+            2: { // Single digit subtraction and addition
+                operations: ['+', '-'],
+                min: 1,
+                max: 9
+            },
+            3: { // Double digit addition and subtraction
+                operations: ['+', '-'],
+                min: 10,
+                max: 99
+            },
+            4: { // Single digit multiplication
+                operations: ['×'],
+                min: 1,
+                max: 9
+            },
+            5: { // Division and mixed operations
+                operations: ['×', '÷'],
+                min: 1,
+                max: 12,
+                divisorMax: 10
+            }
+        };
+
+        // Initialize the game
+        function initGame() {
+            score = 0;
+            currentProblem = 1;
+            problems = [];
+            scoreDisplay.textContent = '0';
+            problemCounter.textContent = `Problem: 1/10`;
+            progressFill.style.width = '10%';
+            gameCard.style.display = 'block';
+            resultsCard.style.display = 'none';
+            problemHistory.innerHTML = '';
+            submitBtn.disabled = false;  // Add this line
+            answerInput.disabled = false;  // Add this line
+            generateProblem();
+            answerInput.value = '';
+            answerInput.focus();
+            isProcessingAnswer = false;
+        }
+
+        // Generate a math problem based on the current level
+        function generateProblem() {
+            const level = levels[currentLevel];
+            const operation = level.operations[Math.floor(Math.random() * level.operations.length)];
+            
+            let num1, num2, solution;
+            
+            // Generate numbers and solution based on operation
+            if (operation === '+') {
+                num1 = getRandomNumber(level.min, level.max);
+                num2 = getRandomNumber(level.min, level.max);
+                solution = num1 + num2;
+            } else if (operation === '-') {
+                // Ensure num1 is larger than num2
+                num2 = getRandomNumber(level.min, level.max);
+                num1 = getRandomNumber(num2, level.max);
+                solution = num1 - num2;
+            } else if (operation === '×') {
+                num1 = getRandomNumber(level.min, level.max);
+                num2 = getRandomNumber(1, level.max);
+                solution = num1 * num2;
+            } else if (operation === '÷') {
+                // Generate clean division problems
+                num2 = getRandomNumber(1, level.divisorMax || 10);
+                solution = getRandomNumber(1, Math.floor(level.max / num2));
+                num1 = solution * num2;
+            }
+            
+            const problem = `${num1} ${operation} ${num2} = ?`;
+            problemDisplay.textContent = problem;
+            correctAnswer = solution;
+            currentProblemData = { problem, num1, num2, operation, correctAnswer };
+            
+            feedback.textContent = '';
+            feedback.className = 'feedback';
+        }
+
+        // Get a random number between min and max (inclusive)
+        function getRandomNumber(min, max) {
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+
+        // Check the user's answer
+        function checkAnswer() {
+            if (isProcessingAnswer) return;
+            isProcessingAnswer = true;
+
+            const userAnswer = parseInt(answerInput.value);
+            
+            if (isNaN(userAnswer) || userAnswer < 0) {
+                feedback.textContent = 'Please enter a positive number';
+                feedback.className = 'feedback';
+                isProcessingAnswer = false;
+                return;
+            }
+            
+            const isCorrect = userAnswer === correctAnswer;
+            
+            // Record problem result
+            problems.push({
+                ...currentProblemData,
+                userAnswer,
+                isCorrect
+            });
+            
+            // Update score and feedback
+            if (isCorrect) {
+                feedback.textContent = 'Correct! Well done!';
+                feedback.className = 'feedback correct';
+                score++;
+                scoreDisplay.textContent = score;
+                createConfetti(15);
+            } else {
+                feedback.textContent = `Not quite. The answer is ${correctAnswer}.`;
+                feedback.className = 'feedback wrong';
+            }
+            
+            submitBtn.disabled = true;
+            answerInput.disabled = true;
+            
+            // Progress to next problem or finish
+            setTimeout(() => {
+                currentProblem++;
+                
+                if (currentProblem <= 10) {
+                    problemCounter.textContent = `Problem: ${currentProblem}/10`;
+                    progressFill.style.width = `${currentProblem * 10}%`;
+                    submitBtn.disabled = false;
+                    answerInput.disabled = false;
+                    generateProblem();
+                    answerInput.value = '';
+                    answerInput.focus();
+                    isProcessingAnswer = false;  // Add this line to reset the flag
+                } else {
+                    // Session complete
+                    showResults();
+                }
+            }, 2000);
+        }
+
+        // Show results at the end of the session
+        function showResults() {
+            gameCard.style.display = 'none';
+            resultsCard.style.display = 'block';
+            finalScore.textContent = score;
+            
+            // Generate results message based on score
+            if (score === 10) {
+                resultsMessage.textContent = 'Amazing! You got a perfect score!';
+            } else if (score >= 7) {
+                resultsMessage.textContent = 'Well done! You did a fantastic job!';
+            } else if (score >= 5) {
+                resultsMessage.textContent = 'Nice try! Keep practicing to improve!';
+            } else {
+                resultsMessage.textContent = 'Don’t give up! Practice makes perfect!';
+            }
+            
+            // Show problem history
+            problems.forEach((problem, index) => {
+                const historyItem = document.createElement('div');
+                historyItem.className = `history-item ${problem.isCorrect ? 'correct' : 'wrong'}`;
+                historyItem.innerHTML = `
+                    <div>${problem.problem}</div>
+                    <div>Your answer: ${problem.userAnswer}</div>
+                    ${!problem.isCorrect ? `<div>Correct: ${problem.correctAnswer}</div>` : ''}
+                `;
+                problemHistory.appendChild(historyItem);
+            });
+        }
+
+        // Create confetti effect for correct answers
+        function createConfetti(amount) {
+            const colors = ['#FF9800', '#4CAF50', '#2196F3', '#E91E63', '#9C27B0'];
+            
+            for (let i = 0; i < amount; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                
+                // Position confetti relative to the problem container
+                const problemContainer = document.querySelector('.problem-container');
+                const rect = problemContainer.getBoundingClientRect();
+                const startX = rect.left + (Math.random() * rect.width);
+                const startY = rect.top;
+                
+                confetti.style.left = startX + 'px';
+                confetti.style.top = startY + 'px';
+                
+                document.body.appendChild(confetti);
+                
+                // Animate confetti
+                const duration = Math.random() * 3 + 2;
+                const rotation = Math.random() * 360;
+                const scale = Math.random() * 0.5 + 0.5;
+                
+                confetti.animate([
+                    { transform: `translateY(0) rotate(0deg) scale(${scale})` },
+                    { transform: `translateY(${window.innerHeight}px) rotate(${rotation}deg) scale(${scale})` }
+                ], {
+                    duration: duration * 1000,
+                    easing: 'ease-in-out'
+                });
+                
+                // Remove confetti after animation
+                setTimeout(() => {
+                    confetti.remove();
+                }, duration * 1000);
+            }
+        }
+
+        // Handle level selection
+        levelSelector.addEventListener('click', (e) => {
+            if (e.target.classList.contains('level-btn')) {
+                // Update active level button
+                document.querySelectorAll('.level-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                e.target.classList.add('active');
+                
+                // Update level and restart game
+                currentLevel = parseInt(e.target.dataset.level);
+                initGame();
+            }
+        });
+
+        // Handle answer submission
+        submitBtn.addEventListener('click', checkAnswer);
+        answerInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                checkAnswer();
+            }
+        });
+
+        // Handle play again button
+        playAgainBtn.addEventListener('click', initGame);
+
+        // Input validation
+        answerInput.addEventListener('input', (e) => {
+            const value = e.target.value;
+            if (value < 0 || value.includes('.')) {
+                e.target.value = Math.abs(parseInt(value) || '');
+            }
+        });
+
+        // Initialize the game on page load
+        initGame();
+    </script>
+</body>
+</html>

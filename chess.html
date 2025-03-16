@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chess Learning</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/chessboard-js/1.0.0/chessboard-1.0.0.min.css">
+    <style>
+        :root {
+            --primary: #2C3E50;
+            --secondary: #34495E;
+            --accent: #3498DB;
+            --light: #ECF0F1;
+            --success: #2ECC71;
+            --warning: #F1C40F;
+            --danger: #E74C3C;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--light);
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 20px;
+        }
+
+        header {
+            grid-column: 1 / -1;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            color: var(--primary);
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .difficulty-selector {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .difficulty-btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .difficulty-btn.beginner {
+            background-color: var(--success);
+            color: white;
+        }
+
+        .difficulty-btn.intermediate {
+            background-color: var(--warning);
+            color: var(--primary);
+        }
+
+        .difficulty-btn.advanced {
+            background-color: var(--danger);
+            color: white;
+        }
+
+        .difficulty-btn.active {
+            transform: scale(1.1);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+
+        .game-container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+
+        #board {
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .info-panel {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+
+        .status {
+            font-size: 1.2rem;
+            color: var(--primary);
+            margin-bottom: 20px;
+            padding: 10px;
+            border-radius: 5px;
+            background-color: var(--light);
+        }
+
+        .move-history {
+            height: 400px;
+            overflow-y: auto;
+            padding: 10px;
+            background-color: var(--light);
+            border-radius: 5px;
+        }
+
+        .move-history div {
+            padding: 5px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .control-btn {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            background-color: var(--accent);
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .control-btn:hover {
+            background-color: #2980B9;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .checkmate-highlight {
+            animation: checkmate-flash 1s ease-in-out;
+            background-color: rgba(231, 76, 60, 0.3) !important;
+        }
+
+        @keyframes checkmate-flash {
+            0%, 100% { background-color: rgba(231, 76, 60, 0); }
+            50% { background-color: rgba(231, 76, 60, 0.3); }
+        }
+
+        .status.checkmate {
+            background-color: var(--danger);
+            color: white;
+            font-weight: bold;
+            animation: status-flash 1s infinite;
+        }
+
+        @keyframes status-flash {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+        }
+
+        .check-highlight {
+            background-color: rgba(241, 196, 15, 0.3) !important;
+            animation: check-flash 1s ease-in-out;
+        }
+
+        @keyframes check-flash {
+            0%, 100% { background-color: rgba(241, 196, 15, 0); }
+            50% { background-color: rgba(241, 196, 15, 0.3); }
+        }
+
+        .status.check {
+            background-color: var(--warning);
+            color: var (--primary);
+            font-weight: bold;
+        }
+
+        .invalid-move {
+            animation: shake 0.5s ease-in-out;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Chess Learning</h1>
+            <div class="difficulty-selector">
+                <button class="difficulty-btn beginner active" data-depth="2">Beginner</button>
+                <button class="difficulty-btn intermediate" data-depth="3">Intermediate</button>
+                <button class="difficulty-btn advanced" data-depth="4">Advanced</button>
+            </div>
+        </header>
+
+        <div class="game-container">
+            <div id="board"></div>
+        </div>
+
+        <div class="info-panel">
+            <div class="status" id="status">Your turn (White)</div>
+            <div class="move-history" id="move-history"></div>
+            <div class="controls">
+                <button class="control-btn" id="new-game">New Game</button>
+                <button class="control-btn" id="undo">Undo</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/chessboard-js/1.0.0/chessboard-1.0.0.min.js"></script>
+    <script>
+        let board = null;
+        let game = new Chess();
+        let searchDepth = 2;
+        let checkmateSound = new Audio('https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3');
+        let checkSound = new Audio('https://assets.mixkit.co/active_storage/sfx/124/124-preview.mp3');
+        let invalidMoveSound = new Audio('https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3');
+
+        function onDragStart(source, piece) {
+            if (game.game_over()) return false;
+            if (piece.search(/^b/) !== -1) return false;
+            return true;
+        }
+
+        function makeRandomMove() {
+            if (game.game_over()) return;
+
+            const possibleMoves = game.moves();
+            const randomIdx = Math.floor(Math.random() * possibleMoves.length);
+            const move = possibleMoves[randomIdx];
+            game.move(move);
+            board.position(game.fen());
+            updateStatus();
+        }
+
+        function minimaxRoot(depth, isMaximizing) {
+            const possibleMoves = game.moves();
+            let bestMove = -9999;
+            let bestMoveFound;
+
+            possibleMoves.forEach(move => {
+                game.move(move);
+                const value = minimax(depth - 1, -10000, 10000, !isMaximizing);
+                game.undo();
+                if (value >= bestMove) {
+                    bestMove = value;
+                    bestMoveFound = move;
+                }
+            });
+            return bestMoveFound;
+        }
+
+        function minimax(depth, alpha, beta, isMaximizing) {
+            if (depth === 0) return -evaluateBoard(game.board());
+
+            const possibleMoves = game.moves();
+
+            if (isMaximizing) {
+                let bestMove = -9999;
+                possibleMoves.forEach(move => {
+                    game.move(move);
+                    bestMove = Math.max(bestMove, minimax(depth - 1, alpha, beta, !isMaximizing));
+                    game.undo();
+                    alpha = Math.max(alpha, bestMove);
+                    if (beta <= alpha) return bestMove;
+                });
+                return bestMove;
+            } else {
+                let bestMove = 9999;
+                possibleMoves.forEach(move => {
+                    game.move(move);
+                    bestMove = Math.min(bestMove, minimax(depth - 1, alpha, beta, !isMaximizing));
+                    game.undo();
+                    beta = Math.min(beta, bestMove);
+                    if (beta <= alpha) return bestMove;
+                });
+                return bestMove;
+            }
+        }
+
+        function evaluateBoard(board) {
+            let totalEvaluation = 0;
+            for (let i = 0; i < 8; i++) {
+                for (let j = 0; j < 8; j++) {
+                    totalEvaluation += getPieceValue(board[i][j], i, j);
+                }
+            }
+            return totalEvaluation;
+        }
+
+        function getPieceValue(piece, x, y) {
+            if (piece === null) return 0;
+
+            const pieceValue = {
+                'p': 10,
+                'n': 30,
+                'b': 30,
+                'r': 50,
+                'q': 90,
+                'k': 900
+            };
+
+            const absoluteValue = pieceValue[piece.type.toLowerCase()];
+            return piece.color === 'w' ? absoluteValue : -absoluteValue;
+        }
+
+        function makeAIMove() {
+            if (game.game_over()) return;
+
+            const bestMove = minimaxRoot(searchDepth, true);
+            game.move(bestMove);
+            board.position(game.fen());
+            updateStatus();
+        }
+
+        function onDrop(source, target) {
+            const move = game.move({
+                from: source,
+                to: target,
+                promotion: 'q'
+            });
+
+            if (move === null) {
+                invalidMoveSound.play();
+                const sourceSquare = document.querySelector(`[data-square="${source}"]`);
+                sourceSquare.classList.add('invalid-move');
+                setTimeout(() => sourceSquare.classList.remove('invalid-move'), 500);
+                return 'snapback';
+            }
+
+            updateStatus();
+            window.setTimeout(makeAIMove, 250);
+        }
+
+        function updateStatus() {
+            let status = '';
+            let moveColor = game.turn() === 'w' ? 'White' : 'Black';
+            const statusElement = document.getElementById('status');
+            
+            // Remove all previous highlights
+            document.querySelectorAll('.check-highlight, .checkmate-highlight').forEach(el => {
+                el.classList.remove('check-highlight', 'checkmate-highlight');
+            });
+            statusElement.classList.remove('check', 'checkmate');
+
+            if (game.in_checkmate()) {
+                status = `Game over, ${moveColor} is in checkmate.`;
+                statusElement.classList.add('checkmate');
+                highlightKing('checkmate-highlight');
+                checkmateSound.play();
+            } else if (game.in_draw()) {
+                status = 'Game over, drawn position';
+            } else {
+                status = `${moveColor} to move`;
+                if (game.in_check()) {
+                    status += `, ${moveColor} is in check`;
+                    statusElement.classList.add('check');
+                    highlightKing('check-highlight');
+                    checkSound.play();
+                }
+            }
+
+            statusElement.textContent = status;
+            updateMoveHistory();
+        }
+
+        function highlightKing(highlightClass) {
+            const squares = document.querySelectorAll('.square-55d63');
+            squares.forEach(square => {
+                const piece = game.get(square.dataset.square);
+                if (piece && piece.type === 'k' && piece.color === game.turn()) {
+                    square.classList.add(highlightClass);
+                }
+            });
+        }
+
+        function updateMoveHistory() {
+            const history = game.history({ verbose: true });
+            const historyElement = document.getElementById('move-history');
+            historyElement.innerHTML = '';
+            
+            history.forEach((move, i) => {
+                const moveNumber = Math.floor(i / 2) + 1;
+                const moveText = document.createElement('div');
+                if (i % 2 === 0) {
+                    moveText.textContent = `${moveNumber}. ${move.san}`;
+                } else {
+                    const previousMove = historyElement.lastElementChild;
+                    previousMove.textContent += ` ${move.san}`;
+                    return;
+                }
+                historyElement.appendChild(moveText);
+            });
+            
+            historyElement.scrollTop = historyElement.scrollHeight;
+        }
+
+        function initGame() {
+            board = Chessboard('board', {
+                draggable: true,
+                position: 'start',
+                onDragStart: onDragStart,
+                onDrop: onDrop,
+                pieceTheme: 'https://chessboardjs.com/img/chesspieces/wikipedia/{piece}.png'
+            });
+            game = new Chess();
+            updateStatus();
+        }
+
+        // Event Listeners
+        document.querySelectorAll('.difficulty-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                document.querySelectorAll('.difficulty-btn').forEach(b => b.classList.remove('active'));
+                e.target.classList.add('active');
+                searchDepth = parseInt(e.target.dataset.depth);
+                initGame();
+            });
+        });
+
+        document.getElementById('new-game').addEventListener('click', initGame);
+        document.getElementById('undo').addEventListener('click', () => {
+            game.undo();
+            game.undo();
+            board.position(game.fen());
+            updateStatus();
+        });
+
+        // Initialize the game
+        initGame();
+    </script>
+</body>
+</html>
