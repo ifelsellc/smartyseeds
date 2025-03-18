@@ -13,6 +13,19 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/chessboard-js/1.0.0/chessboard-1.0.0.min.css">
     <style>
         // ...existing code from chess.html styles...
+
+        /* Additional React-specific styles */
+        #root {
+            min-height: 100vh;
+            padding: 20px;
+            background-color: var(--light);
+        }
+
+        .move-history div {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
     </style>
 </head>
 <body>
@@ -55,7 +68,46 @@
                 };
             }, [preventScroll]);
 
-            const updateStatus = React.useCallback(() => {
+            function minimaxRoot(depth, isMaximizing) {
+                const possibleMoves = game.moves();
+                let bestMove = -9999;
+                let bestMoveFound;
+
+                possibleMoves.forEach(move => {
+                    game.move(move);
+                    const value = minimax(depth - 1, -10000, 10000, !isMaximizing);
+                    game.undo();
+                    if (value >= bestMove) {
+                        bestMove = value;
+                        bestMoveFound = move;
+                    }
+                });
+                return bestMoveFound;
+            }
+
+            // Copy all AI functions from chess.html: minimax, evaluateBoard, getPieceValue
+
+            const updateMoveHistory = () => {
+                const history = game.history({ verbose: true });
+                setMoveHistory(history);
+            };
+
+            const MoveHistory = () => {
+                return moveHistory.map((move, i) => {
+                    const moveNumber = Math.floor(i / 2) + 1;
+                    if (i % 2 === 0) {
+                        return <div key={i}>{`${moveNumber}. ${move.san}`}</div>;
+                    } else {
+                        const previousText = document.querySelector('.move-history').lastChild;
+                        if (previousText) {
+                            previousText.textContent += ` ${move.san}`;
+                        }
+                        return null;
+                    }
+                });
+            };
+
+            const updateStatus = () => {
                 let newStatus = '';
                 const moveColor = game.turn() === 'w' ? 'White' : 'Black';
 
@@ -73,8 +125,8 @@
                 }
 
                 setStatus(newStatus);
-                setMoveHistory(game.history({ verbose: true }));
-            }, [game]);
+                updateMoveHistory();
+            };
 
             const makeAIMove = React.useCallback(() => {
                 if (game.game_over()) return;
@@ -84,8 +136,6 @@
                 board.position(game.fen());
                 updateStatus();
             }, [game, board, searchDepth]);
-
-            // ... Include all the AI logic functions from the original (minimaxRoot, minimax, evaluateBoard, getPieceValue)...
 
             const onDrop = (source, target) => {
                 const move = game.move({
@@ -137,26 +187,31 @@
             return (
                 <div className="container">
                     <header>
-                        <h1>React Chess Learning</h1>
+                        <h1>Chess Learning</h1>
                         <div className="difficulty-selector">
-                            {[
-                                { label: 'Beginner', depth: 2, class: 'beginner' },
-                                { label: 'Intermediate', depth: 3, class: 'intermediate' },
-                                { label: 'Advanced', depth: 4, class: 'advanced' }
-                            ].map(({ label, depth, class: className }) => (
-                                <button
-                                    key={depth}
-                                    className={`difficulty-btn ${className} ${searchDepth === depth ? 'active' : ''}`}
-                                    onClick={() => handleDifficultyChange(depth)}
-                                >
-                                    {label}
-                                </button>
-                            ))}
+                            <button 
+                                className={`difficulty-btn beginner ${searchDepth === 2 ? 'active' : ''}`}
+                                onClick={() => handleDifficultyChange(2)}
+                            >
+                                Beginner
+                            </button>
+                            <button 
+                                className={`difficulty-btn intermediate ${searchDepth === 3 ? 'active' : ''}`}
+                                onClick={() => handleDifficultyChange(3)}
+                            >
+                                Intermediate
+                            </button>
+                            <button 
+                                className={`difficulty-btn advanced ${searchDepth === 4 ? 'active' : ''}`}
+                                onClick={() => handleDifficultyChange(4)}
+                            >
+                                Advanced
+                            </button>
                         </div>
                     </header>
 
                     <div className="game-container">
-                        <div id="board" ref={boardRef}></div>
+                        <div id="board" ref={boardRef} style={{ width: '100%', maxWidth: '600px', margin: '0 auto' }}></div>
                     </div>
 
                     <div className="info-panel">
@@ -164,11 +219,7 @@
                             {status}
                         </div>
                         <div className="move-history">
-                            {moveHistory.map((move, i) => (
-                                <div key={i}>
-                                    {i % 2 === 0 ? `${Math.floor(i / 2) + 1}. ${move.san}` : move.san}
-                                </div>
-                            ))}
+                            <MoveHistory />
                         </div>
                         <div className="controls">
                             <button className="control-btn" onClick={initGame}>New Game</button>
