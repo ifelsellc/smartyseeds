@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>React Chess Learning</title>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/chessboard-js/1.0.0/chessboard-1.0.0.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/chessboard-js/1.0.0/chessboard-1.0.0.min.css">
+    <style>
+        // ...existing code from chess.html styles...
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        function ChessGame() {
+            const [game] = React.useState(new Chess());
+            const [board, setBoard] = React.useState(null);
+            const [searchDepth, setSearchDepth] = React.useState(2);
+            const [status, setStatus] = React.useState('Your turn (White)');
+            const [moveHistory, setMoveHistory] = React.useState([]);
+            const boardRef = React.useRef(null);
+
+            const sounds = {
+                checkmate: new Audio('https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3'),
+                check: new Audio('https://assets.mixkit.co/active_storage/sfx/124/124-preview.mp3'),
+                invalidMove: new Audio('https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3')
+            };
+
+            React.useEffect(() => {
+                initGame();
+                return () => {
+                    if (board) board.destroy();
+                };
+            }, []);
+
+            const preventScroll = React.useCallback((e) => {
+                if (e.target.closest('#board')) {
+                    e.preventDefault();
+                }
+            }, []);
+
+            React.useEffect(() => {
+                document.addEventListener('touchmove', preventScroll, { passive: false });
+                document.addEventListener('touchstart', preventScroll, { passive: false });
+                return () => {
+                    document.removeEventListener('touchmove', preventScroll);
+                    document.removeEventListener('touchstart', preventScroll);
+                };
+            }, [preventScroll]);
+
+            const updateStatus = React.useCallback(() => {
+                let newStatus = '';
+                const moveColor = game.turn() === 'w' ? 'White' : 'Black';
+
+                if (game.in_checkmate()) {
+                    newStatus = `Game over, ${moveColor} is in checkmate.`;
+                    sounds.checkmate.play();
+                } else if (game.in_draw()) {
+                    newStatus = 'Game over, drawn position';
+                } else {
+                    newStatus = `${moveColor} to move`;
+                    if (game.in_check()) {
+                        newStatus += `, ${moveColor} is in check`;
+                        sounds.check.play();
+                    }
+                }
+
+                setStatus(newStatus);
+                setMoveHistory(game.history({ verbose: true }));
+            }, [game]);
+
+            const makeAIMove = React.useCallback(() => {
+                if (game.game_over()) return;
+
+                const bestMove = minimaxRoot(searchDepth, true);
+                game.move(bestMove);
+                board.position(game.fen());
+                updateStatus();
+            }, [game, board, searchDepth]);
+
+            // ... Include all the AI logic functions from the original (minimaxRoot, minimax, evaluateBoard, getPieceValue)...
+
+            const onDrop = (source, target) => {
+                const move = game.move({
+                    from: source,
+                    to: target,
+                    promotion: 'q'
+                });
+
+                if (move === null) {
+                    sounds.invalidMove.play();
+                    return 'snapback';
+                }
+
+                updateStatus();
+                setTimeout(makeAIMove, 250);
+            };
+
+            const initGame = () => {
+                if (board) board.destroy();
+                
+                const newBoard = Chessboard(boardRef.current, {
+                    draggable: true,
+                    position: 'start',
+                    onDragStart: (source, piece) => {
+                        if (game.game_over() || piece.search(/^b/) !== -1) return false;
+                        return true;
+                    },
+                    onDrop,
+                    pieceTheme: 'https://chessboardjs.com/img/chesspieces/wikipedia/{piece}.png'
+                });
+
+                setBoard(newBoard);
+                game.reset();
+                updateStatus();
+            };
+
+            const handleDifficultyChange = (depth) => {
+                setSearchDepth(depth);
+                initGame();
+            };
+
+            const handleUndo = () => {
+                game.undo();
+                game.undo();
+                board.position(game.fen());
+                updateStatus();
+            };
+
+            return (
+                <div className="container">
+                    <header>
+                        <h1>React Chess Learning</h1>
+                        <div className="difficulty-selector">
+                            {[
+                                { label: 'Beginner', depth: 2, class: 'beginner' },
+                                { label: 'Intermediate', depth: 3, class: 'intermediate' },
+                                { label: 'Advanced', depth: 4, class: 'advanced' }
+                            ].map(({ label, depth, class: className }) => (
+                                <button
+                                    key={depth}
+                                    className={`difficulty-btn ${className} ${searchDepth === depth ? 'active' : ''}`}
+                                    onClick={() => handleDifficultyChange(depth)}
+                                >
+                                    {label}
+                                </button>
+                            ))}
+                        </div>
+                    </header>
+
+                    <div className="game-container">
+                        <div id="board" ref={boardRef}></div>
+                    </div>
+
+                    <div className="info-panel">
+                        <div className={`status ${game.in_check() ? 'check' : ''} ${game.in_checkmate() ? 'checkmate' : ''}`}>
+                            {status}
+                        </div>
+                        <div className="move-history">
+                            {moveHistory.map((move, i) => (
+                                <div key={i}>
+                                    {i % 2 === 0 ? `${Math.floor(i / 2) + 1}. ${move.san}` : move.san}
+                                </div>
+                            ))}
+                        </div>
+                        <div className="controls">
+                            <button className="control-btn" onClick={initGame}>New Game</button>
+                            <button className="control-btn" onClick={handleUndo}>Undo</button>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<ChessGame />);
+    </script>
+</body>
+</html>

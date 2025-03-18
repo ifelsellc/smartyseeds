@@ -2,8 +2,12 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Chess Learning</title>
+    <!-- Load jQuery first -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/chessboard-js/1.0.0/chessboard-1.0.0.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/chessboard-js/1.0.0/chessboard-1.0.0.min.css">
     <style>
         :root {
@@ -90,12 +94,21 @@
             padding: 20px;
             border-radius: 10px;
             box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            touch-action: none;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            user-select: none;
         }
 
         #board {
             width: 100%;
             max-width: 600px;
             margin: 0 auto;
+            touch-action: none;
+            -webkit-user-select: none;
+            -webkit-touch-callout: none;
+            position: relative;
+            z-index: 1;
         }
 
         .info-panel {
@@ -201,6 +214,12 @@
             25% { transform: translateX(-5px); }
             75% { transform: translateX(5px); }
         }
+
+        .square-55d63 {
+            touch-action: none;
+            -webkit-user-select: none;
+            user-select: none;
+        }
     </style>
 </head>
 <body>
@@ -228,9 +247,6 @@
         </div>
     </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.10.3/chess.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/chessboard-js/1.0.0/chessboard-1.0.0.min.js"></script>
     <script>
         let board = null;
         let game = new Chess();
@@ -419,37 +435,66 @@
         }
 
         function initGame() {
-            board = Chessboard('board', {
+            const config = {
                 draggable: true,
                 position: 'start',
                 onDragStart: onDragStart,
                 onDrop: onDrop,
-                pieceTheme: 'https://chessboardjs.com/img/chesspieces/wikipedia/{piece}.png'
+                pieceTheme: 'https://chessboardjs.com/img/chesspieces/wikipedia/{piece}.png',
+                moveSpeed: 200,
+                snapbackSpeed: 200,
+                snapSpeed: 200,
+                trashSpeed: 200
+            };
+
+            // Destroy existing board if it exists
+            if (board !== null) {
+                board.destroy();
+            }
+
+            // Initialize new board with jQuery ready check
+            $(document).ready(function() {
+                board = Chessboard('board', config);
+                $(window).resize(function() {
+                    board.resize();
+                });
             });
+            
             game = new Chess();
             updateStatus();
         }
 
-        // Event Listeners
-        document.querySelectorAll('.difficulty-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                document.querySelectorAll('.difficulty-btn').forEach(b => b.classList.remove('active'));
-                e.target.classList.add('active');
-                searchDepth = parseInt(e.target.dataset.depth);
+        // Ensure document is ready before initializing
+        $(document).ready(function() {
+            initGame();
+
+            // Add touch event listeners
+            document.addEventListener('touchmove', preventScroll, { passive: false });
+            document.addEventListener('touchstart', preventScroll, { passive: false });
+
+            // Reinitialize event listeners
+            $('.difficulty-btn').off().on('click', function(e) {
+                $('.difficulty-btn').removeClass('active');
+                $(this).addClass('active');
+                searchDepth = parseInt($(this).data('depth'));
                 initGame();
+            });
+
+            $('#new-game').off().on('click', initGame);
+            $('#undo').off().on('click', function() {
+                game.undo();
+                game.undo();
+                board.position(game.fen());
+                updateStatus();
             });
         });
 
-        document.getElementById('new-game').addEventListener('click', initGame);
-        document.getElementById('undo').addEventListener('click', () => {
-            game.undo();
-            game.undo();
-            board.position(game.fen());
-            updateStatus();
-        });
-
-        // Initialize the game
-        initGame();
+        // Add this near the top of the script section
+        function preventScroll(e) {
+            if (e.target.closest('#board')) {
+                e.preventDefault();
+            }
+        }
     </script>
 </body>
 </html>
