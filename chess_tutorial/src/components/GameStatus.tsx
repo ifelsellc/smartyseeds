@@ -141,7 +141,7 @@ const GameStatus: React.FC = () => {
               <span className="text-sm text-gray-600 dark:text-gray-400 mr-2">
                 White:
               </span>
-              <div className="text-lg">
+              <div className="text-xl">
                 {getCapturedPiecesDisplay(capturedPieces.white)}
               </div>
             </div>
@@ -152,7 +152,7 @@ const GameStatus: React.FC = () => {
               <span className="text-sm text-gray-600 dark:text-gray-400 mr-2">
                 Black:
               </span>
-              <div className="text-lg">
+              <div className="text-xl">
                 {getCapturedPiecesDisplay(capturedPieces.black)}
               </div>
             </div>

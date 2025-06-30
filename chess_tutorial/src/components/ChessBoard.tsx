@@ -39,9 +39,9 @@ const PromotionDialog: React.FC<{
             <button
               key={piece.value}
               onClick={() => onSelect(piece.value)}
-              className="flex flex-col items-center p-4 rounded-lg border-2 border-gray-200 dark:border-gray-600 hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors"
+              className="flex flex-col items-center p-6 rounded-lg border-2 border-gray-200 dark:border-gray-600 hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors"
             >
-              <span className="text-4xl mb-2">{piece.symbol}</span>
+              <span className="text-6xl mb-2">{piece.symbol}</span>
               <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
                 {piece.name}
               </span>
@@ -281,7 +281,7 @@ const ChessBoard: React.FC = () => {
 
                 {/* Possible move indicator */}
                 {possibleMoves.includes(square) && !pieceSymbol && (
-                  <div className="w-4 h-4 bg-gray-600 rounded-full opacity-50" />
+                  <div className="w-6 h-6 bg-gray-600 rounded-full opacity-50" />
                 )}
               </motion.div>
             )

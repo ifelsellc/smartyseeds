@@ -16,8 +16,8 @@
   .chess-square {
     @apply relative flex items-center justify-center transition-colors duration-200;
     aspect-ratio: 1;
-    min-height: 64px;
-    min-width: 64px;
+    min-height: 80px;
+    min-width: 80px;
   }
   
   .chess-square.light {
@@ -46,7 +46,9 @@
   }
   
   .chess-piece {
-    @apply text-4xl cursor-pointer select-none transition-transform duration-200 hover:scale-110;
+    @apply cursor-pointer select-none transition-transform duration-200 hover:scale-110;
+    font-size: 80px;
+    line-height: 1;
   }
   
   .chess-piece.moving {
@@ -84,7 +86,8 @@
 @layer utilities {
   .game-board {
     @apply grid grid-cols-8 gap-0 border-4 border-gray-800 rounded-lg shadow-xl;
-    aspect-ratio: 1;
+    width: 640px;
+    height: 640px;
   }
   
   @keyframes ai-move-pulse {

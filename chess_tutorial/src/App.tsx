@@ -42,7 +42,7 @@ function App() {
 
             {/* Center - Chess Board */}
             <div className="lg:col-span-2 flex justify-center">
-              <div className="w-full max-w-lg">
+              <div className="w-fit">
                 <ChessBoard />
                 <GameControls />
               </div>
