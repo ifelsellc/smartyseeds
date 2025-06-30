@@ -8,6 +8,7 @@ import DifficultySelector from './components/DifficultySelector'
 import ThemeToggle from './components/ThemeToggle'
 import HintPanel from './components/HintPanel'
 import GameStatus from './components/GameStatus'
+import GameResultModal from './components/GameResultModal'
 import { ThemeProvider } from './contexts/ThemeContext'
 
 function App() {
@@ -58,6 +59,9 @@ function App() {
             <p>Made with ❤️ for young chess masters</p>
           </footer>
         </div>
+        
+        {/* Game Result Modal */}
+        <GameResultModal />
       </div>
     </ThemeProvider>
   )

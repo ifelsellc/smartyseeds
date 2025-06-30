@@ -41,7 +41,7 @@
   }
   
   .chess-square.ai-move-highlight {
-    @apply bg-blue-300 ring-4 ring-blue-500 ring-opacity-75;
+    @apply bg-blue-300;
     animation: ai-move-pulse 1s ease-in-out infinite;
   }
   
@@ -89,10 +89,10 @@
   
   @keyframes ai-move-pulse {
     0%, 100% {
-      @apply ring-opacity-75 bg-blue-300;
+      @apply bg-blue-300;
     }
     50% {
-      @apply ring-opacity-100 bg-blue-400;
+      @apply bg-blue-400;
     }
   }
 } 

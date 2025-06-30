@@ -310,17 +310,7 @@ const ChessBoard: React.FC = () => {
         </div>
       )}
 
-      {/* AI thinking indicator */}
-      {thinking && (
-        <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-20 rounded-lg">
-          <div className="bg-white dark:bg-gray-800 px-4 py-2 rounded-lg shadow-lg">
-            <div className="flex items-center space-x-2">
-              <div className="animate-spin w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full"></div>
-              <span className="text-sm font-medium">AI is thinking...</span>
-            </div>
-          </div>
-        </div>
-      )}
+
     </div>
   )
 }
