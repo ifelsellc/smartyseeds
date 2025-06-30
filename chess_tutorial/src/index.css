@@ -1,0 +1,98 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    font-family: 'Inter', system-ui, sans-serif;
+  }
+  
+  body {
+    @apply antialiased;
+  }
+}
+
+@layer components {
+  .chess-square {
+    @apply relative flex items-center justify-center transition-colors duration-200;
+    aspect-ratio: 1;
+    min-height: 64px;
+    min-width: 64px;
+  }
+  
+  .chess-square.light {
+    @apply bg-chess-light;
+  }
+  
+  .chess-square.dark {
+    @apply bg-chess-dark;
+  }
+  
+  .chess-square.highlighted {
+    @apply bg-chess-highlight;
+  }
+  
+  .chess-square.possible-move {
+    @apply bg-chess-move;
+  }
+  
+  .chess-square.in-check {
+    @apply bg-chess-check;
+  }
+  
+  .chess-square.ai-move-highlight {
+    @apply bg-blue-300 ring-4 ring-blue-500 ring-opacity-75;
+    animation: ai-move-pulse 1s ease-in-out infinite;
+  }
+  
+  .chess-piece {
+    @apply text-4xl cursor-pointer select-none transition-transform duration-200 hover:scale-110;
+  }
+  
+  .chess-piece.moving {
+    @apply animate-piece-move;
+  }
+  
+  .control-button {
+    @apply px-4 py-2 rounded-lg font-medium transition-all duration-200 
+           bg-blue-600 text-white hover:bg-blue-700 active:scale-95
+           disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+  
+  .hint-overlay {
+    @apply absolute inset-0 bg-yellow-200 bg-opacity-50 rounded-lg 
+           border-2 border-yellow-400 animate-pulse-gentle;
+  }
+  
+  .pattern-overlay {
+    @apply absolute inset-0 rounded-lg border-2 border-dashed;
+  }
+  
+  .pattern-overlay.fork {
+    @apply border-red-500 bg-red-100 bg-opacity-30;
+  }
+  
+  .pattern-overlay.pin {
+    @apply border-orange-500 bg-orange-100 bg-opacity-30;
+  }
+  
+  .pattern-overlay.discovered-attack {
+    @apply border-purple-500 bg-purple-100 bg-opacity-30;
+  }
+}
+
+@layer utilities {
+  .game-board {
+    @apply grid grid-cols-8 gap-0 border-4 border-gray-800 rounded-lg shadow-xl;
+    aspect-ratio: 1;
+  }
+  
+  @keyframes ai-move-pulse {
+    0%, 100% {
+      @apply ring-opacity-75 bg-blue-300;
+    }
+    50% {
+      @apply ring-opacity-100 bg-blue-400;
+    }
+  }
+} 
