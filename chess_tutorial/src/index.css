@@ -49,6 +49,17 @@
     @apply cursor-pointer select-none transition-transform duration-200 hover:scale-110;
     font-size: 80px;
     line-height: 1;
+    width: 80px;
+    height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .chess-piece img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
   }
   
   .chess-piece.moving {

@@ -1,20 +1,30 @@
 import React, { useEffect } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import { RootState } from '../store/store'
-import { startNewGame } from '../store/gameSlice'
+import { startNewGame, dismissResultModal } from '../store/gameSlice'
 import { resetAI } from '../store/aiSlice'
-import { Trophy, Medal, Users, RotateCcw, Eye, Crown, Zap } from 'lucide-react'
+import { Trophy, Medal, Users, RotateCcw, Eye, Crown, Zap, X } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useSoundEffects } from '../hooks/useSoundEffects'
 
 const GameResultModal: React.FC = () => {
   const dispatch = useDispatch()
-  const { status, result, gameHistory } = useSelector((state: RootState) => state.game)
+  const { status, result, gameHistory, showResultModal } = useSelector((state: RootState) => state.game)
   const { playGameEnd } = useSoundEffects()
 
   const handleNewGame = () => {
     dispatch(startNewGame())
     dispatch(resetAI())
+  }
+
+  const handleClose = () => {
+    dispatch(dismissResultModal())
+  }
+
+  const handleBackdropClick = (e: React.MouseEvent) => {
+    if (e.target === e.currentTarget) {
+      handleClose()
+    }
   }
 
   const getResultIcon = (result: string) => {
@@ -89,7 +99,7 @@ const GameResultModal: React.FC = () => {
     }
   }, [status, result, playGameEnd])
 
-  if (status !== 'finished' || !result || !resultInfo) {
+  if (!showResultModal || status !== 'finished' || !result || !resultInfo) {
     return null
   }
 
@@ -100,14 +110,24 @@ const GameResultModal: React.FC = () => {
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4"
+        onClick={handleBackdropClick}
       >
         <motion.div
           initial={{ scale: 0.8, opacity: 0, y: 50 }}
           animate={{ scale: 1, opacity: 1, y: 0 }}
           exit={{ scale: 0.8, opacity: 0, y: 50 }}
           transition={{ type: "spring", duration: 0.5 }}
-          className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl p-8 max-w-md w-full mx-4"
+          className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl p-8 max-w-md w-full mx-4 relative"
+          onClick={(e) => e.stopPropagation()}
         >
+          {/* Close Button */}
+          <button
+            onClick={handleClose}
+            className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 transition-colors z-10"
+            aria-label="Close modal"
+          >
+            <X className="w-6 h-6" />
+          </button>
           {/* Header with gradient */}
           <div className={`bg-gradient-to-r ${getResultColor(result)} rounded-xl p-6 mb-6 text-white text-center`}>
             <motion.div
@@ -173,18 +193,19 @@ const GameResultModal: React.FC = () => {
             className="flex gap-3"
           >
             <button
+              onClick={handleClose}
+              className="flex-1 bg-green-600 hover:bg-green-700 text-white font-medium py-3 px-4 rounded-lg transition-colors duration-200 flex items-center justify-center gap-2"
+            >
+              <Eye className="w-4 h-4" />
+              Review Game
+            </button>
+            
+            <button
               onClick={handleNewGame}
               className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-lg transition-colors duration-200 flex items-center justify-center gap-2"
             >
               <RotateCcw className="w-4 h-4" />
               New Game
-            </button>
-            
-            <button
-              onClick={() => {/* Could implement game analysis */}}
-              className="bg-gray-200 dark:bg-gray-600 hover:bg-gray-300 dark:hover:bg-gray-500 text-gray-700 dark:text-gray-200 font-medium py-3 px-4 rounded-lg transition-colors duration-200 flex items-center justify-center"
-            >
-              <Eye className="w-4 h-4" />
             </button>
           </motion.div>
 

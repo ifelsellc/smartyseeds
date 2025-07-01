@@ -9,6 +9,8 @@ import ThemeToggle from './components/ThemeToggle'
 import HintPanel from './components/HintPanel'
 import GameStatus from './components/GameStatus'
 import GameResultModal from './components/GameResultModal'
+import ChessSetSelector from './components/ChessSetSelector'
+import ChessSetButton from './components/ChessSetButton'
 import { ThemeProvider } from './contexts/ThemeContext'
 
 function App() {
@@ -26,7 +28,8 @@ function App() {
             <p className="text-lg text-gray-600 dark:text-gray-300">
               Learn chess step by step - Perfect for beginners!
             </p>
-            <div className="flex justify-center mt-4">
+            <div className="flex justify-center items-center gap-3 mt-4">
+              <ChessSetButton />
               <ThemeToggle />
             </div>
           </header>
@@ -62,6 +65,9 @@ function App() {
         
         {/* Game Result Modal */}
         <GameResultModal />
+        
+        {/* Chess Set Selector Modal */}
+        <ChessSetSelector />
       </div>
     </ThemeProvider>
   )

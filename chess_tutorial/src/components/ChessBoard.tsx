@@ -5,12 +5,8 @@ import { selectSquare, makeMove } from '../store/gameSlice'
 import { motion } from 'framer-motion'
 import { useSoundEffects } from '../hooks/useSoundEffects'
 import { useAI } from '../hooks/useAI'
-
-// Chess piece Unicode symbols
-const PIECES = {
-  K: '♔', Q: '♕', R: '♖', B: '♗', N: '♘', P: '♙',
-  k: '♚', q: '♛', r: '♜', b: '♝', n: '♞', p: '♟'
-}
+import { useChessPieces } from '../hooks/useChessPieces'
+import { PieceType, PieceColor } from '../types/chessTypes'
 
 // Promotion dialog component
 const PromotionDialog: React.FC<{
@@ -19,13 +15,16 @@ const PromotionDialog: React.FC<{
   onCancel: () => void
   color: 'w' | 'b'
 }> = ({ isOpen, onSelect, onCancel, color }) => {
+  const { getPieceRepresentation, isUnicodeSet } = useChessPieces()
+  
   if (!isOpen) return null
 
+  const pieceColor: PieceColor = color === 'w' ? 'white' : 'black'
   const pieces = [
-    { symbol: color === 'w' ? '♕' : '♛', value: 'q', name: 'Queen' },
-    { symbol: color === 'w' ? '♖' : '♜', value: 'r', name: 'Rook' },
-    { symbol: color === 'w' ? '♗' : '♝', value: 'b', name: 'Bishop' },
-    { symbol: color === 'w' ? '♘' : '♞', value: 'n', name: 'Knight' },
+    { symbol: getPieceRepresentation('queen', pieceColor), value: 'q', name: 'Queen' },
+    { symbol: getPieceRepresentation('rook', pieceColor), value: 'r', name: 'Rook' },
+    { symbol: getPieceRepresentation('bishop', pieceColor), value: 'b', name: 'Bishop' },
+    { symbol: getPieceRepresentation('knight', pieceColor), value: 'n', name: 'Knight' },
   ]
 
   return (
@@ -41,7 +40,18 @@ const PromotionDialog: React.FC<{
               onClick={() => onSelect(piece.value)}
               className="flex flex-col items-center p-6 rounded-lg border-2 border-gray-200 dark:border-gray-600 hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors"
             >
-              <span className="text-6xl mb-2">{piece.symbol}</span>
+              <div className="text-6xl mb-2 w-16 h-16 flex items-center justify-center">
+                {isUnicodeSet() ? (
+                  <span>{piece.symbol}</span>
+                ) : (
+                  <img 
+                    src={piece.symbol} 
+                    alt={`${piece.name} piece`} 
+                    className="w-full h-full object-contain"
+                    draggable={false}
+                  />
+                )}
+              </div>
               <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
                 {piece.name}
               </span>
@@ -65,6 +75,7 @@ const ChessBoard: React.FC = () => {
   const dispatch = useDispatch()
   const { playMove, playCapture, playCheck } = useSoundEffects()
   const { isAIThinking } = useAI()
+  const { getPieceRepresentation, isUnicodeSet } = useChessPieces()
   
   // Promotion dialog state
   const [promotionDialog, setPromotionDialog] = useState<{
@@ -214,8 +225,16 @@ const ChessBoard: React.FC = () => {
 
   const getPieceSymbol = (piece: any): string => {
     if (!piece) return ''
-    const key = piece.color === 'w' ? piece.type.toUpperCase() : piece.type
-    return PIECES[key as keyof typeof PIECES] || ''
+    
+    const pieceColor: PieceColor = piece.color === 'w' ? 'white' : 'black'
+    const pieceType: PieceType = piece.type === 'p' ? 'pawn' : 
+                                 piece.type === 'r' ? 'rook' :
+                                 piece.type === 'n' ? 'knight' :
+                                 piece.type === 'b' ? 'bishop' :
+                                 piece.type === 'q' ? 'queen' :
+                                 piece.type === 'k' ? 'king' : 'pawn'
+    
+    return getPieceRepresentation(pieceType, pieceColor)
   }
 
   const isHintSquare = (square: string): boolean => {
@@ -275,7 +294,16 @@ const ChessBoard: React.FC = () => {
                     animate={{ scale: 1 }}
                     transition={{ duration: 0.2 }}
                   >
-                    {pieceSymbol}
+                    {isUnicodeSet() ? (
+                      <span>{pieceSymbol}</span>
+                    ) : (
+                      <img 
+                        src={pieceSymbol} 
+                        alt="Chess piece" 
+                        className="w-full h-full object-contain"
+                        draggable={false}
+                      />
+                    )}
                   </motion.div>
                 )}
 

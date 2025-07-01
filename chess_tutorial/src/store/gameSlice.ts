@@ -39,6 +39,7 @@ export interface GameState {
     from: string | null
     to: string | null
   }
+  showResultModal: boolean
 }
 
 const initialState: GameState = {
@@ -71,7 +72,8 @@ const initialState: GameState = {
     isAnimating: false,
     from: null,
     to: null
-  }
+  },
+  showResultModal: false
 }
 
 const gameSlice = createSlice({
@@ -93,6 +95,7 @@ const gameSlice = createSlice({
       state.capturedPieces = { white: [], black: [] }
       state.patterns = { fork: [], pin: [], discoveredAttack: [] }
       state.aiMoveAnimation = { isAnimating: false, from: null, to: null }
+      state.showResultModal = false
     },
 
     makeMove: (state, action: PayloadAction<{ from: string; to: string; promotion?: string }>) => {
@@ -144,6 +147,7 @@ const gameSlice = createSlice({
           // Check for game end
           if (state.chessGame.isGameOver()) {
             state.status = 'finished'
+            state.showResultModal = true
             if (state.chessGame.isCheckmate()) {
               state.result = `Checkmate! ${state.chessGame.turn() === 'w' ? 'Black' : 'White'} wins!`
             } else if (state.chessGame.isDraw()) {
@@ -284,6 +288,10 @@ const gameSlice = createSlice({
       state.aiMoveAnimation.isAnimating = false
       state.aiMoveAnimation.from = null
       state.aiMoveAnimation.to = null
+    },
+
+    dismissResultModal: (state) => {
+      state.showResultModal = false
     }
   }
 })
@@ -317,7 +325,8 @@ export const {
   setCurrentHint,
   setPatterns,
   startAIMoveAnimation,
-  endAIMoveAnimation
+  endAIMoveAnimation,
+  dismissResultModal
 } = gameSlice.actions
 
 export default gameSlice.reducer 
