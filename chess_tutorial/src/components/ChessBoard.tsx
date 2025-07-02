@@ -114,7 +114,6 @@ const ChessBoard: React.FC = () => {
         return
       }
 
-      console.log('🤖 AI turn - requesting move...')
       dispatch(setThinking(true))
 
       try {
@@ -122,7 +121,6 @@ const ChessBoard: React.FC = () => {
         const aiMove = await getBestMove(currentFen)
         
         if (aiMove && status === 'playing' && !isPlayerTurn) {
-          console.log('🎯 AI suggests move:', aiMove)
           
           // Parse the move (e.g., "e2e4" -> from: "e2", to: "e4")
           const from = aiMove.substring(0, 2)

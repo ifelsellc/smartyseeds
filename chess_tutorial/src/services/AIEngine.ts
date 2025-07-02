@@ -22,7 +22,6 @@ export class AIEngine {
       
       this.worker.onmessage = (event) => {
         const { type, data } = event.data;
-        console.log("📨 AI Engine received:", type, data);
         
         switch (type) {
           case "ready":
@@ -50,14 +49,12 @@ export class AIEngine {
   }
 
   private handleEngineOutput(line: string): void {
-    console.log("🔍 Engine output:", line);
-    
     // Look for best move
     if (line.startsWith("bestmove ")) {
       const moveMatch = line.match(/bestmove ([a-h][1-8][a-h][1-8][qrbn]?)/);
       if (moveMatch && this.pendingMoveResolve) {
         const move = moveMatch[1];
-        console.log("✅ Found best move:", move);
+        console.log("✅ AI move:", move);
         
         // Clear timeout
         if (this.moveTimeoutId) {
@@ -79,16 +76,13 @@ export class AIEngine {
     }
 
     return new Promise((resolve, reject) => {
-      console.log("🎯 Requesting best move for:", fen);
-      console.log("⚙️ Settings:", settings);
-      
       // Store resolve function
       this.pendingMoveResolve = resolve;
       
       // Set timeout
       const timeoutMs = Math.max(settings.moveTime * 2, 10000); // At least 10 seconds
       this.moveTimeoutId = setTimeout(() => {
-        console.error("⏰ Move calculation timeout");
+        console.error("⏰ AI move timeout");
         this.pendingMoveResolve = null;
         reject(new Error("Move calculation timeout"));
       }, timeoutMs);

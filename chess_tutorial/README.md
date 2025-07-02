@@ -41,7 +41,7 @@ A comprehensive, web-based chess application built with React and TypeScript, sp
 - **Styling**: Tailwind CSS
 - **Animations**: Framer Motion
 - **Chess Logic**: chess.js
-- **AI Engine**: Custom implementation (extensible for Stockfish)
+- **AI Engine**: Stockfish 16 WASM with 5 difficulty levels
 - **Testing**: Vitest + React Testing Library
 - **Build Tool**: Vite
 
@@ -134,13 +134,13 @@ npm run test:coverage
 
 ## 🎯 AI Difficulty Levels
 
-| Level            | Skill          | Description                    | Features                               |
-| ---------------- | -------------- | ------------------------------ | -------------------------------------- |
-| **Beginner**     | 1/5 ⭐         | Perfect for first-time players | Random moves, very forgiving           |
-| **Novice**       | 2/5 ⭐⭐       | Great for learning basics      | Prefers captures, simple tactics       |
-| **Intermediate** | 3/5 ⭐⭐⭐     | Challenges developing players  | Basic evaluation, pattern recognition  |
-| **Advanced**     | 4/5 ⭐⭐⭐⭐   | For experienced players        | Strategic thinking, tactical awareness |
-| **Expert**       | 5/5 ⭐⭐⭐⭐⭐ | Maximum challenge              | Deep analysis, strong play             |
+| Level            | Skill Level      | Move Time | Description                    |
+| ---------------- | ---------------- | --------- | ------------------------------ |
+| **Beginner**     | 0/20 ⭐          | 500ms     | Perfect for first-time players |
+| **Novice**       | 5/20 ⭐⭐        | 1000ms    | Great for learning basics      |
+| **Intermediate** | 10/20 ⭐⭐⭐     | 2000ms    | Challenges developing players  |
+| **Advanced**     | 15/20 ⭐⭐⭐⭐   | 3000ms    | For experienced players        |
+| **Expert**       | 20/20 ⭐⭐⭐⭐⭐ | 5000ms    | Maximum Stockfish challenge    |
 
 ## 🎨 Customization
 
@@ -212,7 +212,7 @@ npm run preview      # Preview production build
 
 ### Planned Features
 
-- [ ] **Stockfish Integration**: Real Stockfish WebAssembly integration
+- [x] **Stockfish Integration**: ✅ Complete - Stockfish 16 WASM integrated
 - [ ] **Puzzle Mode**: Tactical puzzles for skill development
 - [ ] **Opening Trainer**: Learn popular chess openings
 - [ ] **Progress Tracking**: Save and track learning progress
@@ -239,9 +239,10 @@ npm run preview      # Preview production build
 
 **AI not responding**
 
-- Check if AI is enabled in settings
-- Verify it's the AI's turn
-- Look for error messages in console
+- ✅ AI now fully functional with Stockfish integration
+- Verify it's the AI's turn (should move automatically)
+- Check browser console for any error messages
+- Ensure sufficient time for AI calculation (varies by difficulty)
 
 **Moves not working**
 
