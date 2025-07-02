@@ -1,126 +1,85 @@
-import { useEffect, useRef } from 'react'
-import { useSelector, useDispatch } from 'react-redux'
+import { useEffect, useRef, useState } from 'react'
+import { useSelector } from 'react-redux'
 import { RootState } from '../store/store'
-import { setThinking, setBestMove, setEvaluation } from '../store/aiSlice'
-import { makeMove, setHints, setPatterns, startAIMoveAnimation, endAIMoveAnimation } from '../store/gameSlice'
 import { AIEngine } from '../services/AIEngine'
 
-export const useAI = () => {
-  const dispatch = useDispatch()
-  const aiEngineRef = useRef<AIEngine | null>(null)
-  
-  const { 
-    chessGame, 
-    status, 
-    isPlayerTurn, 
-    hints 
-  } = useSelector((state: RootState) => state.game)
-  
-  const { 
-    difficulty, 
-    settings, 
-    isEnabled, 
-    thinking 
-  } = useSelector((state: RootState) => state.ai)
+interface UseAIResult {
+  getBestMove: (fen: string) => Promise<string | null>
+  isThinking: boolean
+  error: string | null
+  isReady: boolean
+}
 
-  // Initialize AI engine
+export function useAI(): UseAIResult {
+  const aiSettings = useSelector((state: RootState) => state.ai.settings[state.ai.difficulty])
+  const engineRef = useRef<AIEngine | null>(null)
+  const [isThinking, setIsThinking] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [isReady, setIsReady] = useState(false)
+
+  // Initialize AI engine when component mounts
   useEffect(() => {
-    const currentSettings = settings[difficulty]
-    aiEngineRef.current = new AIEngine(currentSettings)
-    
+    const initializeEngine = async () => {
+      try {
+        console.log('🚀 Initializing AI engine...')
+        setError(null)
+        
+        const engine = new AIEngine()
+        await engine.initialize()
+        
+        engineRef.current = engine
+        setIsReady(true)
+        console.log('✅ AI engine ready!')
+        
+      } catch (err) {
+        console.error('❌ Failed to initialize AI engine:', err)
+        setError(err instanceof Error ? err.message : 'Failed to initialize AI')
+        setIsReady(false)
+      }
+    }
+
+    initializeEngine()
+
+    // Cleanup on unmount
     return () => {
-      if (aiEngineRef.current) {
-        aiEngineRef.current.destroy()
+      if (engineRef.current) {
+        console.log('🧹 Cleaning up AI engine...')
+        engineRef.current.destroy()
+        engineRef.current = null
       }
     }
-  }, [difficulty, settings])
+  }, [])
 
-  // Update AI settings when difficulty changes
-  useEffect(() => {
-    if (aiEngineRef.current) {
-      aiEngineRef.current.updateSettings(settings[difficulty])
+  const getBestMove = async (fen: string): Promise<string | null> => {
+    if (!engineRef.current || !isReady) {
+      console.warn('AI engine not ready')
+      return null
     }
-  }, [difficulty, settings])
 
-  // Handle AI moves
-  useEffect(() => {
-    const makeAIMove = async () => {
-      if (!aiEngineRef.current || !isEnabled || thinking || status !== 'playing' || isPlayerTurn) {
-        return
-      }
-
-      dispatch(setThinking(true))
+    try {
+      setIsThinking(true)
+      setError(null)
       
-      try {
-        const currentFen = chessGame.fen()
-        const bestMove = await aiEngineRef.current.getBestMove(currentFen)
-        
-        if (bestMove && status === 'playing') {
-          // Parse the move
-          const moves = chessGame.moves({ verbose: true })
-          const move = moves.find(m => m.san === bestMove)
-          
-          if (move) {
-            dispatch(setBestMove(bestMove))
-            
-            // Start animation to show AI move
-            dispatch(startAIMoveAnimation({ from: move.from, to: move.to }))
-            
-            // Make the move after animation delay for better UX
-            setTimeout(() => {
-              dispatch(makeMove({
-                from: move.from,
-                to: move.to,
-                promotion: move.promotion
-              }))
-              
-              // End animation after move is made
-              setTimeout(() => {
-                dispatch(endAIMoveAnimation())
-                dispatch(setThinking(false))
-              }, 500) // Keep highlighting for 0.5s after move
-            }, 1200) // 1.2s animation before move
-          } else {
-            dispatch(setThinking(false))
-          }
-        } else {
-          dispatch(setThinking(false))
-        }
-      } catch (error) {
-        console.error('AI move error:', error)
-        dispatch(setThinking(false))
-      }
+      console.log('🎯 Getting best move for:', fen)
+      const move = await engineRef.current.getBestMove(fen, aiSettings)
+      
+      console.log('✅ AI recommends:', move)
+      return move
+      
+    } catch (err) {
+      console.error('❌ Error getting AI move:', err)
+      setError(err instanceof Error ? err.message : 'Failed to get AI move')
+      return null
+      
+    } finally {
+      setIsThinking(false)
     }
-
-    makeAIMove()
-  }, [isPlayerTurn, status, chessGame, isEnabled, thinking, dispatch])
-
-  // Update hints when enabled
-  useEffect(() => {
-    const updateHints = async () => {
-      if (!aiEngineRef.current || !hints.enabled || !isPlayerTurn || status !== 'playing') {
-        return
-      }
-
-      try {
-        const currentFen = chessGame.fen()
-        const candidateMoves = await aiEngineRef.current.getHints(currentFen)
-        dispatch(setHints(candidateMoves))
-        
-        // Also detect patterns
-        const patterns = await aiEngineRef.current.detectPatterns(currentFen)
-        dispatch(setPatterns(patterns))
-      } catch (error) {
-        console.error('Hint generation error:', error)
-      }
-    }
-
-    updateHints()
-  }, [hints.enabled, isPlayerTurn, chessGame, status, dispatch])
+  }
 
   return {
-    isAIThinking: thinking,
-    aiDifficulty: difficulty,
-    aiEnabled: isEnabled
+    getBestMove,
+    isThinking,
+    error,
+    isReady
   }
 } 

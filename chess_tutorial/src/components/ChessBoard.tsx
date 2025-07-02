@@ -1,7 +1,8 @@
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useState, useEffect } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import { RootState } from '../store/store'
-import { selectSquare, makeMove } from '../store/gameSlice'
+import { selectSquare, makeMove, startAIMoveAnimation, endAIMoveAnimation } from '../store/gameSlice'
+import { setThinking } from '../store/aiSlice'
 import { motion } from 'framer-motion'
 import { useSoundEffects } from '../hooks/useSoundEffects'
 import { useAI } from '../hooks/useAI'
@@ -74,7 +75,7 @@ const PromotionDialog: React.FC<{
 const ChessBoard: React.FC = () => {
   const dispatch = useDispatch()
   const { playMove, playCapture, playCheck } = useSoundEffects()
-  const { isAIThinking } = useAI()
+  const { getBestMove, isThinking: aiIsThinking, isReady: aiIsReady } = useAI()
   const { getPieceRepresentation, isUnicodeSet } = useChessPieces()
   
   // Promotion dialog state
@@ -100,10 +101,74 @@ const ChessBoard: React.FC = () => {
     hints,
     patterns,
     status,
+    isPlayerTurn,
     aiMoveAnimation
   } = useSelector((state: RootState) => state.game)
 
   const { thinking } = useSelector((state: RootState) => state.ai)
+
+  // AI Move Logic - Trigger AI moves when it's AI's turn
+  useEffect(() => {
+    const makeAIMove = async () => {
+      if (status !== 'playing' || isPlayerTurn || thinking || !aiIsReady || chessGame.isGameOver()) {
+        return
+      }
+
+      console.log('🤖 AI turn - requesting move...')
+      dispatch(setThinking(true))
+
+      try {
+        const currentFen = chessGame.fen()
+        const aiMove = await getBestMove(currentFen)
+        
+        if (aiMove && status === 'playing' && !isPlayerTurn) {
+          console.log('🎯 AI suggests move:', aiMove)
+          
+          // Parse the move (e.g., "e2e4" -> from: "e2", to: "e4")
+          const from = aiMove.substring(0, 2)
+          const to = aiMove.substring(2, 4)
+          const promotion = aiMove.length > 4 ? aiMove.substring(4) : undefined
+          
+          // Start animation
+          dispatch(startAIMoveAnimation({ from, to }))
+          
+          // Wait a moment to show the animation
+          await new Promise(resolve => setTimeout(resolve, 500))
+          
+          // Make the move
+          dispatch(makeMove({ from, to, promotion }))
+          
+          // Play sound effect
+          const move = chessGame.moves({ verbose: true }).find((m: any) => 
+            m.from === from && m.to === to
+          )
+          if (move?.captured) {
+            playCapture()
+          } else {
+            playMove()
+          }
+          
+          // Check for check after move
+          setTimeout(() => {
+            if (chessGame.inCheck()) {
+              playCheck()
+            }
+          }, 100)
+          
+          // End animation
+          setTimeout(() => {
+            dispatch(endAIMoveAnimation())
+          }, 1000)
+        }
+      } catch (error) {
+        console.error('❌ AI move error:', error)
+      } finally {
+        dispatch(setThinking(false))
+      }
+    }
+
+    makeAIMove()
+  }, [status, isPlayerTurn, thinking, aiIsReady, chessGame, getBestMove, dispatch, playMove, playCapture, playCheck])
 
   // Convert chess.js board to our format
   const board = chessGame.board()
