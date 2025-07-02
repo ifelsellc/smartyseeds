@@ -2,7 +2,6 @@
 console.log("🚀 Initializing Stockfish Worker...");
 
 let isInitialized = false;
-let pendingCommands = [];
 
 // Load Stockfish script
 try {
@@ -18,6 +17,8 @@ try {
 
 // Store the original postMessage to communicate with main thread
 const originalPostMessage = self.postMessage;
+// Store the original onmessage handler from Stockfish
+const stockfishOnMessage = self.onmessage;
 
 // Override postMessage to intercept engine output
 self.postMessage = function (data) {
@@ -31,6 +32,7 @@ self.postMessage = function (data) {
     // Handle UCI protocol
     if (data.includes("uciok")) {
       console.log("✅ UCI protocol established");
+      isInitialized = true;
       originalPostMessage.call(self, {
         type: "ready",
         data: "Engine ready",
@@ -42,10 +44,12 @@ self.postMessage = function (data) {
   }
 };
 
-// Send command to engine
+// Send command to engine using Stockfish's original handler
 function sendCommand(command) {
-  if (typeof originalPostMessage === "function") {
-    originalPostMessage.call(self, command);
+  if (stockfishOnMessage) {
+    stockfishOnMessage.call(self, { data: command });
+  } else {
+    console.error("❌ No Stockfish message handler available");
   }
 }
 

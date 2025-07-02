@@ -69,8 +69,10 @@ const DifficultySelector: React.FC = () => {
                   ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300'
                   : 'border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500 hover:bg-gray-50 dark:hover:bg-gray-700'
               } ${
-                !isEnabled || status === 'playing' 
+                (!isEnabled || status === 'playing') && !isSelected
                   ? 'opacity-50 cursor-not-allowed' 
+                  : isSelected && status === 'playing'
+                  ? 'cursor-not-allowed'
                   : 'cursor-pointer'
               }`}
             >
@@ -82,6 +84,11 @@ const DifficultySelector: React.FC = () => {
                   <span className="font-medium capitalize">
                     {level}
                   </span>
+                  {isSelected && (
+                    <span className="ml-2 px-2 py-0.5 text-xs font-medium bg-blue-500 text-white rounded-full">
+                      ACTIVE
+                    </span>
+                  )}
                 </div>
                 
                 {/* Difficulty stars */}

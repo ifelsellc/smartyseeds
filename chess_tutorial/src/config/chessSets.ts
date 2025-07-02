@@ -15,6 +15,21 @@ import cartoonBlackBishop from '../assets/chess-sets/cartoon/black/bishop.png'
 import cartoonBlackKnight from '../assets/chess-sets/cartoon/black/knight.png'
 import cartoonBlackPawn from '../assets/chess-sets/cartoon/black/pawn.png'
 
+// Import classic chess piece images
+import classicWhiteKing from '../assets/chess-sets/classic/white/king.png'
+import classicWhiteQueen from '../assets/chess-sets/classic/white/queen.png'
+import classicWhiteRook from '../assets/chess-sets/classic/white/rook.png'
+import classicWhiteBishop from '../assets/chess-sets/classic/white/bishop.png'
+import classicWhiteKnight from '../assets/chess-sets/classic/white/knight.png'
+import classicWhitePawn from '../assets/chess-sets/classic/white/pawn.png'
+
+import classicBlackKing from '../assets/chess-sets/classic/black/king.png'
+import classicBlackQueen from '../assets/chess-sets/classic/black/queen.png'
+import classicBlackRook from '../assets/chess-sets/classic/black/rook.png'
+import classicBlackBishop from '../assets/chess-sets/classic/black/bishop.png'
+import classicBlackKnight from '../assets/chess-sets/classic/black/knight.png'
+import classicBlackPawn from '../assets/chess-sets/classic/black/pawn.png'
+
 // Unicode chess set (current implementation)
 const unicodeSet: ChessSet = {
   id: 'unicode-classic',
@@ -39,7 +54,7 @@ const unicodeSet: ChessSet = {
     knight: '♞',
     pawn: '♟'
   }
-}
+  }
 
 // Classic Staunton-style set
 const classicSet: ChessSet = {
@@ -47,49 +62,49 @@ const classicSet: ChessSet = {
   name: 'Staunton Classic',
   description: 'Traditional Staunton tournament pieces',
   category: 'classic',
-  preview: '/src/assets/chess-sets/classic/preview.png',
+  preview: classicWhiteKing, // Using white king as preview
   white: {
-    king: '/src/assets/chess-sets/classic/white/king.svg',
-    queen: '/src/assets/chess-sets/classic/white/queen.svg',
-    rook: '/src/assets/chess-sets/classic/white/rook.svg',
-    bishop: '/src/assets/chess-sets/classic/white/bishop.svg',
-    knight: '/src/assets/chess-sets/classic/white/knight.svg',
-    pawn: '/src/assets/chess-sets/classic/white/pawn.svg'
+    king: classicWhiteKing,
+    queen: classicWhiteQueen,
+    rook: classicWhiteRook,
+    bishop: classicWhiteBishop,
+    knight: classicWhiteKnight,
+    pawn: classicWhitePawn
   },
   black: {
-    king: '/src/assets/chess-sets/classic/black/king.svg',
-    queen: '/src/assets/chess-sets/classic/black/queen.svg',
-    rook: '/src/assets/chess-sets/classic/black/rook.svg',
-    bishop: '/src/assets/chess-sets/classic/black/bishop.svg',
-    knight: '/src/assets/chess-sets/classic/black/knight.svg',
-    pawn: '/src/assets/chess-sets/classic/black/pawn.svg'
+    king: classicBlackKing,
+    queen: classicBlackQueen,
+    rook: classicBlackRook,
+    bishop: classicBlackBishop,
+    knight: classicBlackKnight,
+    pawn: classicBlackPawn
   }
 }
 
-// Modern minimalist set
-const modernSet: ChessSet = {
-  id: 'modern-minimal',
-  name: 'Modern Minimal',
-  description: 'Clean, contemporary design for modern players',
-  category: 'modern',
-  preview: '/src/assets/chess-sets/modern/preview.png',
-  white: {
-    king: '/src/assets/chess-sets/modern/white/king.svg',
-    queen: '/src/assets/chess-sets/modern/white/queen.svg',
-    rook: '/src/assets/chess-sets/modern/white/rook.svg',
-    bishop: '/src/assets/chess-sets/modern/white/bishop.svg',
-    knight: '/src/assets/chess-sets/modern/white/knight.svg',
-    pawn: '/src/assets/chess-sets/modern/white/pawn.svg'
-  },
-  black: {
-    king: '/src/assets/chess-sets/modern/black/king.svg',
-    queen: '/src/assets/chess-sets/modern/black/queen.svg',
-    rook: '/src/assets/chess-sets/modern/black/rook.svg',
-    bishop: '/src/assets/chess-sets/modern/black/bishop.svg',
-    knight: '/src/assets/chess-sets/modern/black/knight.svg',
-    pawn: '/src/assets/chess-sets/modern/black/pawn.svg'
-  }
-}
+// Modern minimalist set - TODO: Add actual assets
+// const modernSet: ChessSet = {
+//   id: 'modern-minimal',
+//   name: 'Modern Minimal',
+//   description: 'Clean, contemporary design for modern players',
+//   category: 'modern',
+//   preview: '/src/assets/chess-sets/modern/preview.png',
+//   white: {
+//     king: '/src/assets/chess-sets/modern/white/king.svg',
+//     queen: '/src/assets/chess-sets/modern/white/queen.svg',
+//     rook: '/src/assets/chess-sets/modern/white/rook.svg',
+//     bishop: '/src/assets/chess-sets/modern/white/bishop.svg',
+//     knight: '/src/assets/chess-sets/modern/white/knight.svg',
+//     pawn: '/src/assets/chess-sets/modern/white/pawn.svg'
+//   },
+//   black: {
+//     king: '/src/assets/chess-sets/modern/black/king.svg',
+//     queen: '/src/assets/chess-sets/modern/black/queen.svg',
+//     rook: '/src/assets/chess-sets/modern/black/rook.svg',
+//     bishop: '/src/assets/chess-sets/modern/black/bishop.svg',
+//     knight: '/src/assets/chess-sets/modern/black/knight.svg',
+//     pawn: '/src/assets/chess-sets/modern/black/pawn.svg'
+//   }
+// }
 
 // Kid-friendly cartoon set
 const cartoonSet: ChessSet = {
@@ -146,7 +161,7 @@ const unicodeAlternative: ChessSet = {
 export const chessSets: ChessSet[] = [
   unicodeSet,      // Default - always works
   classicSet,      // Traditional tournament style
-  modernSet,       // Contemporary design
+  // modernSet,    // Contemporary design - TODO: Add assets
   cartoonSet,      // Kid-friendly
   unicodeAlternative // Alternative Unicode
 ]
