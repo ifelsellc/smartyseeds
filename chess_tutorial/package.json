@@ -6,7 +6,7 @@
     "private": true,
     "scripts": {
         "dev": "vite",
-        "prebuild": "npm config set registry https://registry.npmjs.org/ && npm config set always-auth false",
+        "preinstall": "npm config set registry https://registry.npmjs.org/ && npm config set always-auth false",
         "build": "vite build",
         "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
         "preview": "vite preview",
