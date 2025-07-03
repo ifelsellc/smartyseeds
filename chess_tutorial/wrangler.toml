@@ -3,8 +3,14 @@ compatibility_date = "2024-01-01"
 
 # Cloudflare Pages specific settings
 pages_build_output_dir = "dist"
+build_command = "npm config set registry https://registry.npmjs.org/ && npm config set always-auth false && npm install && npm run build"
 
-# Environment variables
+# Environment variables to fix npm authentication
 [env.production.vars]
 NPM_CONFIG_REGISTRY = "https://registry.npmjs.org/"
-NPM_CONFIG_ALWAYS_AUTH = "false" 
+NPM_CONFIG_ALWAYS_AUTH = "false"
+NPM_CONFIG_AUDIT = "false"
+NPM_CONFIG_FUND = "false"
+NPM_CONFIG_CACHE = "/tmp/.npm"
+NPM_CONFIG_USERCONFIG = "/dev/null"
+NPM_CONFIG_GLOBALCONFIG = "/dev/null" 
