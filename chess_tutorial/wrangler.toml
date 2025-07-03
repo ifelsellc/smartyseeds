@@ -1,7 +1,10 @@
 name = "chess-tutorial"
 compatibility_date = "2024-01-01"
 
-[build]
-command = "./build.sh"
-cwd = "."
-watch_dir = "src" 
+# Cloudflare Pages specific settings
+pages_build_output_dir = "dist"
+
+# Environment variables
+[env.production.vars]
+NPM_CONFIG_REGISTRY = "https://registry.npmjs.org/"
+NPM_CONFIG_ALWAYS_AUTH = "false" 
