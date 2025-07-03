@@ -2,6 +2,7 @@ export interface AISettings {
   depth: number;
   moveTime: number;
   skillLevel: number;
+  elo?: number; // Optional Elo rating for UCI_LimitStrength mode
 }
 
 export class AIEngine {
@@ -87,12 +88,21 @@ export class AIEngine {
         reject(new Error("Move calculation timeout"));
       }, timeoutMs);
       
-      // Configure engine
-      this.sendCommand(`setoption name Skill Level value ${settings.skillLevel}`);
+      // Configure engine based on whether we have an Elo target
+      if (settings.elo) {
+        // Use UCI_LimitStrength and UCI_Elo for precise strength control
+        console.log(`🎯 Setting AI to ~${settings.elo} Elo`);
+        this.sendCommand(`setoption name UCI_LimitStrength value true`);
+        this.sendCommand(`setoption name UCI_Elo value ${settings.elo}`);
+      } else {
+        // Use traditional skill level
+        this.sendCommand(`setoption name UCI_LimitStrength value false`);
+        this.sendCommand(`setoption name Skill Level value ${settings.skillLevel}`);
+      }
       
       // Send position and calculate
       this.sendCommand(`position fen ${fen}`);
-      this.sendCommand(`go movetime ${settings.moveTime}`);
+      this.sendCommand(`go movetime ${settings.moveTime} depth ${settings.depth}`);
     });
   }
 

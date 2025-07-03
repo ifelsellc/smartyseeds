@@ -323,11 +323,31 @@ Always convert between formats appropriately.
 
 ### AI Response Times by Difficulty:
 
-- **Beginner** (skill 0): ~500ms
-- **Novice** (skill 5): ~1000ms
-- **Intermediate** (skill 10): ~2000ms
+- **Beginner** (800 Elo): ~500ms - Uses UCI_LimitStrength for truly weak play
+- **Novice** (skill 3): ~1000ms
+- **Intermediate** (skill 8): ~2000ms
 - **Advanced** (skill 15): ~3000ms
 - **Expert** (skill 20): ~5000ms
+
+### Difficulty Implementation:
+
+The beginner level now uses **UCI_LimitStrength** with **UCI_Elo = 800** instead of just skill level 0. This provides:
+
+- More consistent weak play
+- Truly beatable for new players
+- Better simulation of human-like mistakes at low rating levels
+
+**Technical Implementation:**
+
+```typescript
+// For beginner level (with elo: 800)
+this.sendCommand(`setoption name UCI_LimitStrength value true`);
+this.sendCommand(`setoption name UCI_Elo value 800`);
+
+// For other levels (using skill system)
+this.sendCommand(`setoption name UCI_LimitStrength value false`);
+this.sendCommand(`setoption name Skill Level value ${skillLevel}`);
+```
 
 ### File Sizes:
 

@@ -7,6 +7,7 @@ export interface AISettings {
   moveTime: number
   skillLevel: number
   description: string
+  elo?: number // Optional Elo rating for UCI_LimitStrength mode
 }
 
 export interface AIState {
@@ -24,28 +25,29 @@ const aiSettings: Record<DifficultyLevel, AISettings> = {
     depth: 1,
     moveTime: 500,
     skillLevel: 0,
+    elo: 800, // Use UCI_Elo for truly weak play
     description: 'Perfect for first-time players'
   },
   novice: {
     depth: 2,
     moveTime: 1000,
-    skillLevel: 5,
+    skillLevel: 3, // Reduced from 5
     description: 'Great for learning basic tactics'
   },
   intermediate: {
-    depth: 5,
+    depth: 4, // Reduced from 5
     moveTime: 2000,
-    skillLevel: 10,
+    skillLevel: 8, // Reduced from 10
     description: 'Challenges developing players'
   },
   advanced: {
-    depth: 8,
+    depth: 6, // Reduced from 8
     moveTime: 3000,
     skillLevel: 15,
     description: 'For experienced players'
   },
   expert: {
-    depth: 12,
+    depth: 10, // Reduced from 12
     moveTime: 5000,
     skillLevel: 20,
     description: 'Maximum challenge'

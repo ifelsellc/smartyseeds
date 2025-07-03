@@ -134,13 +134,17 @@ npm run test:coverage
 
 ## 🎯 AI Difficulty Levels
 
-| Level            | Skill Level      | Move Time | Description                    |
-| ---------------- | ---------------- | --------- | ------------------------------ |
-| **Beginner**     | 0/20 ⭐          | 500ms     | Perfect for first-time players |
-| **Novice**       | 5/20 ⭐⭐        | 1000ms    | Great for learning basics      |
-| **Intermediate** | 10/20 ⭐⭐⭐     | 2000ms    | Challenges developing players  |
-| **Advanced**     | 15/20 ⭐⭐⭐⭐   | 3000ms    | For experienced players        |
-| **Expert**       | 20/20 ⭐⭐⭐⭐⭐ | 5000ms    | Maximum Stockfish challenge    |
+The chess tutorial features 5 carefully calibrated difficulty levels using advanced UCI parameters:
+
+| Level            | Strength Control | Think Time | Description                    |
+| ---------------- | ---------------- | ---------- | ------------------------------ |
+| **Beginner**     | 800 Elo          | 500ms      | Perfect for first-time players |
+| **Novice**       | 3/20 Skill       | 1000ms     | Great for learning tactics     |
+| **Intermediate** | 8/20 Skill       | 2000ms     | Challenges developing players  |
+| **Advanced**     | 15/20 Skill      | 3000ms     | For experienced players        |
+| **Expert**       | 20/20 Skill      | 5000ms     | Maximum Stockfish challenge    |
+
+> **Note**: The "Beginner" level uses UCI_LimitStrength with a target Elo of 800, making it genuinely beatable for new players. Other levels use Stockfish's skill level system for progressive difficulty scaling.
 
 ## 🎨 Customization
 
