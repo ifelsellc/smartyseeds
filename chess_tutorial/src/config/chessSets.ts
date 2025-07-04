@@ -15,6 +15,21 @@ import cartoonBlackBishop from '../assets/chess-sets/cartoon/black/bishop.png'
 import cartoonBlackKnight from '../assets/chess-sets/cartoon/black/knight.png'
 import cartoonBlackPawn from '../assets/chess-sets/cartoon/black/pawn.png'
 
+// Import medieval knights chess pieces
+import medievalWhiteKing from '../assets/chess-sets/medieval-knights/white/king.png'
+import medievalWhiteQueen from '../assets/chess-sets/medieval-knights/white/queen.png'
+import medievalWhiteRook from '../assets/chess-sets/medieval-knights/white/rook.png'
+import medievalWhiteBishop from '../assets/chess-sets/medieval-knights/white/bishop.png'
+import medievalWhiteKnight from '../assets/chess-sets/medieval-knights/white/knight.png'
+import medievalWhitePawn from '../assets/chess-sets/medieval-knights/white/pawn.png'
+
+import medievalBlackKing from '../assets/chess-sets/medieval-knights/black/king.png'
+import medievalBlackQueen from '../assets/chess-sets/medieval-knights/black/queen.png'
+import medievalBlackRook from '../assets/chess-sets/medieval-knights/black/rook.png'
+import medievalBlackBishop from '../assets/chess-sets/medieval-knights/black/bishop.png'
+import medievalBlackKnight from '../assets/chess-sets/medieval-knights/black/knight.png'
+import medievalBlackPawn from '../assets/chess-sets/medieval-knights/black/pawn.png'
+
 // Import classic chess piece images
 import classicWhiteKing from '../assets/chess-sets/classic/white/king.png'
 import classicWhiteQueen from '../assets/chess-sets/classic/white/queen.png'
@@ -131,6 +146,31 @@ const cartoonSet: ChessSet = {
   }
 }
 
+// Medieval fantasy cartoon set
+const medievalKnightsSet: ChessSet = {
+  id: "medieval-knights",
+  name: "Medieval Knights",
+  description: "Brave knights and castle defenders in cartoon style with blue medieval theme",
+  category: "fun",
+  preview: medievalWhiteKing, // Use actual king image as preview
+  white: {
+    king: medievalWhiteKing,
+    queen: medievalWhiteQueen,
+    rook: medievalWhiteRook,
+    bishop: medievalWhiteBishop,
+    knight: medievalWhiteKnight,
+    pawn: medievalWhitePawn,
+  },
+  black: {
+    king: medievalBlackKing,
+    queen: medievalBlackQueen,
+    rook: medievalBlackRook,
+    bishop: medievalBlackBishop,
+    knight: medievalBlackKnight,
+    pawn: medievalBlackPawn,
+  },
+};
+
 // Alternative Unicode set with different symbols
 const unicodeAlternative: ChessSet = {
   id: 'unicode-outlined',
@@ -159,11 +199,12 @@ const unicodeAlternative: ChessSet = {
 
 // Export all chess sets
 export const chessSets: ChessSet[] = [
-  unicodeSet,      // Default - always works
-  classicSet,      // Traditional tournament style
-  // modernSet,    // Contemporary design - TODO: Add assets
-  cartoonSet,      // Kid-friendly
-  unicodeAlternative // Alternative Unicode
+  unicodeSet,          // Default - always works
+  classicSet,          // Traditional tournament style
+  // modernSet,        // Contemporary design - TODO: Add assets
+  cartoonSet,          // Kid-friendly
+  medievalKnightsSet,  // Medieval fantasy theme
+  unicodeAlternative   // Alternative Unicode
 ]
 
 export const defaultChessSetId = 'unicode-classic'

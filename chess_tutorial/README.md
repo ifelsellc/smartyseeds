@@ -163,9 +163,19 @@ colors: {
 }
 ```
 
+### AI Difficulty Tuning
+
+Want to adjust the AI difficulty levels? See the comprehensive **[AI Difficulty Tuning Guide](AI_DIFFICULTY_TUNING.md)** for:
+
+- How to adjust existing difficulty levels
+- Adding new difficulty levels
+- Understanding UCI parameters
+- Advanced tuning techniques
+- Testing and troubleshooting
+
 ### Adding New Difficulty Levels
 
-Extend the AI settings in `aiSlice.ts`:
+Quick example - extend the AI settings in `aiSlice.ts`:
 
 ```typescript
 const aiSettings = {
@@ -178,6 +188,8 @@ const aiSettings = {
   },
 };
 ```
+
+For detailed instructions, see the [AI Difficulty Tuning Guide](AI_DIFFICULTY_TUNING.md).
 
 ## 📱 Responsive Design
 
