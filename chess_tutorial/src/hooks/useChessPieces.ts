@@ -1,9 +1,11 @@
-import { useSelector } from 'react-redux'
+import { useSelector, useDispatch } from 'react-redux'
 import { RootState } from '../store/store'
-import { getChessSetById } from '../config/chessSets'
+import { getChessSetById, defaultChessSetId } from '../config/chessSets'
+import { setSelectedChessSet } from '../store/preferencesSlice'
 import { PieceType, PieceColor } from '../types/chessTypes'
 
 export const useChessPieces = () => {
+  const dispatch = useDispatch()
   const { selectedChessSetId } = useSelector((state: RootState) => state.preferences)
   const selectedSet = getChessSetById(selectedChessSetId)
 
@@ -32,11 +34,18 @@ export const useChessPieces = () => {
     return selectedSet?.category || 'unknown'
   }
 
+  // Function to switch to Unicode fallback if images fail
+  const switchToUnicodeFallback = () => {
+    console.warn('Chess piece images failed to load, switching to Unicode fallback')
+    dispatch(setSelectedChessSet(defaultChessSetId))
+  }
+
   return {
     getPieceRepresentation,
     isUnicodeSet,
     getSetName,
     getSetCategory,
-    selectedSet
+    selectedSet,
+    switchToUnicodeFallback
   }
 } 

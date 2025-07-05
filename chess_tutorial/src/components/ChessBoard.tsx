@@ -50,6 +50,18 @@ const PromotionDialog: React.FC<{
                     alt={`${piece.name} piece`} 
                     className="w-full h-full object-contain"
                     draggable={false}
+                    onError={(e) => {
+                      // Fallback to Unicode if image fails to load
+                      const target = e.target as HTMLImageElement;
+                      const unicodeFallback = {
+                        white: { queen: '♕', rook: '♖', bishop: '♗', knight: '♘' },
+                        black: { queen: '♛', rook: '♜', bishop: '♝', knight: '♞' }
+                      };
+                      const fallbackSpan = document.createElement('span');
+                      fallbackSpan.textContent = unicodeFallback[pieceColor][piece.value === 'q' ? 'queen' : piece.value === 'r' ? 'rook' : piece.value === 'b' ? 'bishop' : 'knight'];
+                      fallbackSpan.className = 'text-6xl';
+                      target.parentNode?.replaceChild(fallbackSpan, target);
+                    }}
                   />
                 )}
               </div>
@@ -365,6 +377,28 @@ const ChessBoard: React.FC = () => {
                         alt="Chess piece" 
                         className="w-full h-full object-contain"
                         draggable={false}
+                        onError={(e) => {
+                          // Fallback to Unicode if image fails to load
+                          const target = e.target as HTMLImageElement;
+                          const piece = board[rankIndex][fileIndex];
+                          if (piece) {
+                            const unicodeFallback = {
+                              white: { king: '♔', queen: '♕', rook: '♖', bishop: '♗', knight: '♘', pawn: '♙' },
+                              black: { king: '♚', queen: '♛', rook: '♜', bishop: '♝', knight: '♞', pawn: '♟' }
+                            };
+                            const pieceColor = piece.color === 'w' ? 'white' : 'black';
+                            const pieceType = piece.type === 'p' ? 'pawn' : 
+                                           piece.type === 'r' ? 'rook' :
+                                           piece.type === 'n' ? 'knight' :
+                                           piece.type === 'b' ? 'bishop' :
+                                           piece.type === 'q' ? 'queen' :
+                                           piece.type === 'k' ? 'king' : 'pawn';
+                            const fallbackSpan = document.createElement('span');
+                            fallbackSpan.textContent = unicodeFallback[pieceColor][pieceType];
+                            fallbackSpan.className = 'text-4xl';
+                            target.parentNode?.replaceChild(fallbackSpan, target);
+                          }
+                        }}
                       />
                     )}
                   </motion.div>

@@ -1,6 +1,6 @@
 # 🏰 Chess Tutorial - Educational Chess Game for Children
 
-A comprehensive, web-based chess application built with React and TypeScript, specifically designed for 8-year-old beginners who want to learn and improve their chess skills.
+A comprehensive, web-based chess application built with React and TypeScript, specifically designed for 8-year-old beginners who want to learn and improve their chess skills. Features both AI gameplay and interactive puzzle training for complete chess education.
 
 ## ✨ Features
 
@@ -20,10 +20,12 @@ A comprehensive, web-based chess application built with React and TypeScript, sp
 
 ### 🧠 Learning Features
 
-- **Move Hints**: Get 2-3 candidate moves suggested by the AI
+- **Interactive Puzzles**: 15+ tactical puzzles ranging from beginner to expert level
+- **Move Hints**: Get 2-3 candidate moves suggested by the AI (game mode)
 - **Pattern Recognition**: Visual overlays for tactical patterns (forks, pins, discovered attacks)
 - **Difficulty-Aware Tips**: Contextual chess advice based on skill level
 - **Educational Tooltips**: Learn chess concepts while playing
+- **Progress Tracking**: Puzzle statistics, streaks, and completion tracking
 
 ### 🎨 User Experience
 
@@ -55,13 +57,20 @@ src/
 │   ├── MoveList.tsx     # Move history
 │   ├── HintPanel.tsx    # Learning assistant
 │   ├── GameStatus.tsx   # Game state display
+│   ├── PuzzleMode.tsx   # Puzzle training interface
+│   ├── PuzzleBoard.tsx  # Puzzle-specific board
+│   ├── PuzzleControls.tsx # Puzzle controls
+│   ├── PuzzleSelector.tsx # Puzzle browser
 │   └── ...
 ├── store/               # Redux state management
 │   ├── gameSlice.ts     # Game state
 │   ├── aiSlice.ts       # AI settings
+│   ├── puzzleSlice.ts   # Puzzle state
 │   └── store.ts         # Store configuration
 ├── services/            # Business logic
 │   └── AIEngine.ts      # AI opponent logic
+├── data/                # Static data
+│   └── puzzles.ts       # Chess puzzle database
 ├── hooks/               # Custom React hooks
 │   ├── useAI.ts         # AI integration
 │   └── useSoundEffects.ts # Audio effects
@@ -146,6 +155,69 @@ The chess tutorial features 5 carefully calibrated difficulty levels using advan
 
 > **Note**: The "Beginner" level uses UCI_LimitStrength with a target Elo of 800, making it genuinely beatable for new players. Other levels use Stockfish's skill level system for progressive difficulty scaling.
 
+## 🧩 Chess Puzzle Training
+
+The application includes a comprehensive puzzle training system designed to improve tactical pattern recognition and chess skills.
+
+### Puzzle Categories
+
+- **Checkmate**: Learn to deliver checkmate in 1-3 moves
+- **Tactics**: General tactical patterns and combinations
+- **Fork**: Knight and queen forks to win material
+- **Pin**: Absolute and relative pins
+- **Skewer**: Attack two pieces in a line
+- **Discovery**: Discovered attacks and checks
+- **Endgame**: Basic endgame techniques
+- **Opening**: Common opening traps and principles
+
+### Difficulty Levels
+
+| Level            | Rating Range | Moves | Description                    |
+| ---------------- | ------------ | ----- | ------------------------------ |
+| **Beginner**     | 750-1000     | 1     | Simple checkmates and captures |
+| **Intermediate** | 1200-1500    | 1-3   | Tactical patterns              |
+| **Advanced**     | 1800-2000    | 3     | Complex combinations           |
+| **Expert**       | 2200+        | 3+    | Advanced tactics               |
+
+### Puzzle Features
+
+- **Solution Validation**: Multi-move puzzle support with step-by-step validation
+- **Hint System**: Get hints when stuck (affects scoring)
+- **Progress Tracking**: Statistics on solved puzzles, time spent, and accuracy
+- **Streak Tracking**: Current and best solving streaks
+- **Random Mode**: Practice puzzles in random order
+- **Sequential Mode**: Work through puzzles systematically
+- **Filtering**: Browse puzzles by difficulty and category
+
+### Getting Started with Puzzles
+
+1. **Select Puzzle Mode**: Choose "Solve Puzzles" from the main menu
+2. **Browse Puzzles**: Use the puzzle browser to select by difficulty or category
+3. **Solve Puzzles**: Click and drag pieces to make moves
+4. **Get Hints**: Use the hint button when stuck (sparingly for better learning)
+5. **Study Solutions**: Review the complete solution when revealed
+6. **Track Progress**: Monitor your improvement with built-in statistics
+
+### Puzzle Data Management
+
+Puzzles are stored in `src/data/puzzles.ts` for easy management:
+
+```typescript
+// Add new puzzles to the chessPuzzles array
+{
+  id: 16,
+  fen: 'puzzle-position-in-fen',
+  solution: ['e2e4', 'e7e5'], // UCI format
+  solutionSAN: ['e4', 'e5'],  // Human readable
+  title: 'Puzzle Title',
+  description: 'What to find',
+  difficulty: 'beginner',
+  category: 'tactics',
+  rating: 1000,
+  moves: 2
+}
+```
+
 ## 🎨 Customization
 
 ### Theme Configuration
@@ -229,9 +301,9 @@ npm run preview      # Preview production build
 ### Planned Features
 
 - [x] **Stockfish Integration**: ✅ Complete - Stockfish 16 WASM integrated
-- [ ] **Puzzle Mode**: Tactical puzzles for skill development
+- [x] **Puzzle Mode**: ✅ Complete - 15+ tactical puzzles with progress tracking
 - [ ] **Opening Trainer**: Learn popular chess openings
-- [ ] **Progress Tracking**: Save and track learning progress
+- [ ] **Advanced Progress Tracking**: Cloud sync and detailed analytics
 - [ ] **Multiplayer**: Play against friends online
 - [ ] **Analysis Board**: Post-game analysis with engine evaluation
 - [ ] **Chess Variants**: King of the Hill, Chess960, etc.

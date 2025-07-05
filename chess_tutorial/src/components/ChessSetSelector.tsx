@@ -87,36 +87,78 @@ const ChessSetSelector: React.FC = () => {
                  alt="White King" 
                  className="w-8 h-8 object-contain"
                  draggable={false}
+                 onError={(e) => {
+                   const target = e.target as HTMLImageElement;
+                   const span = document.createElement('span');
+                   span.textContent = '♔';
+                   span.className = 'text-2xl';
+                   target.parentNode?.replaceChild(span, target);
+                 }}
                />
                <img 
                  src={chessSet.white.queen} 
                  alt="White Queen" 
                  className="w-8 h-8 object-contain"
                  draggable={false}
+                 onError={(e) => {
+                   const target = e.target as HTMLImageElement;
+                   const span = document.createElement('span');
+                   span.textContent = '♕';
+                   span.className = 'text-2xl';
+                   target.parentNode?.replaceChild(span, target);
+                 }}
                />
                <img 
                  src={chessSet.white.rook} 
                  alt="White Rook" 
                  className="w-8 h-8 object-contain"
                  draggable={false}
+                 onError={(e) => {
+                   const target = e.target as HTMLImageElement;
+                   const span = document.createElement('span');
+                   span.textContent = '♖';
+                   span.className = 'text-2xl';
+                   target.parentNode?.replaceChild(span, target);
+                 }}
                />
                <img 
                  src={chessSet.black.king} 
                  alt="Black King" 
                  className="w-8 h-8 object-contain"
                  draggable={false}
+                 onError={(e) => {
+                   const target = e.target as HTMLImageElement;
+                   const span = document.createElement('span');
+                   span.textContent = '♚';
+                   span.className = 'text-2xl';
+                   target.parentNode?.replaceChild(span, target);
+                 }}
                />
                <img 
                  src={chessSet.black.queen} 
                  alt="Black Queen" 
                  className="w-8 h-8 object-contain"
                  draggable={false}
+                 onError={(e) => {
+                   const target = e.target as HTMLImageElement;
+                   const span = document.createElement('span');
+                   span.textContent = '♛';
+                   span.className = 'text-2xl';
+                   target.parentNode?.replaceChild(span, target);
+                 }}
                />
                <img 
                  src={chessSet.black.rook} 
                  alt="Black Rook" 
                  className="w-8 h-8 object-contain"
                  draggable={false}
+                 onError={(e) => {
+                   const target = e.target as HTMLImageElement;
+                   const span = document.createElement('span');
+                   span.textContent = '♜';
+                   span.className = 'text-2xl';
+                   target.parentNode?.replaceChild(span, target);
+                 }}
                />
              </div>
            )}
