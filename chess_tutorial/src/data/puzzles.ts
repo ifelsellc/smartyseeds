@@ -1,221 +1,123 @@
 export interface ChessPuzzle {
   id: number;
   fen: string;
-  solution: string[]; // Array of moves in UCI format (e.g., ['e2e4', 'e7e5'])
-  solutionSAN: string[]; // Human-readable notation (e.g., ['e4', 'e5'])
+  solution: string[];
+  solutionSAN: string[];
   title: string;
   description: string;
-  difficulty: 'beginner' | 'intermediate' | 'advanced' | 'expert';
-  category: 'checkmate' | 'tactics' | 'endgame' | 'opening' | 'fork' | 'pin' | 'skewer' | 'discovery';
-  rating: number; // Puzzle rating (800-2500)
-  moves: number; // Number of moves to solve
+  difficulty: 'beginner' | 'intermediate' | 'advanced';
+  category: string;
+  rating: number;
+  moves: number;
 }
 
 export const chessPuzzles: ChessPuzzle[] = [
-  // Beginner Checkmate Puzzles
+  // Arabian Mate - Rook and Knight coordination
   {
     id: 1,
-    fen: '6k1/5ppp/8/8/8/8/5PPP/6K1 w - - 0 1',
-    solution: ['g2g3'],
-    solutionSAN: ['g3'],
-    title: 'Back Rank Safety',
-    description: 'Create an escape square for your king to avoid back rank mate!',
+    fen: '7k/6R1/5N2/8/8/8/8/7K w - - 0 1',
+    solution: ['g7g8'],
+    solutionSAN: ['Rg8#'],
+    title: 'Arabian Mate',
+    description: 'Use the unique coordination of rook and knight to deliver checkmate.',
+    difficulty: 'intermediate',
+    category: 'checkmate',
+    rating: 950,
+    moves: 1
+  },
+  // Anastasia's Mate - King trapped on side
+  {
+    id: 2,
+    fen: '2k5/2p5/2K5/8/8/8/8/7R w - - 0 1',
+    solution: ['h1h8'],
+    solutionSAN: ['Rh8#'],
+    title: "Anastasia's Mate",
+    description: 'Use your rook to trap the enemy king on the side of the board.',
+    difficulty: 'intermediate',
+    category: 'checkmate',
+    rating: 1100,
+    moves: 1
+  },
+  // Back Rank Mate with capture
+  {
+    id: 3,
+    fen: 'r5k1/5ppp/8/8/8/8/8/R6K w - - 0 1',
+    solution: ['a1a8'],
+    solutionSAN: ['Rxa8#'],
+    title: 'Back Rank Mate with Capture',
+    description: 'The enemy king is trapped on the back rank by its own pawns. Capture and deliver checkmate!',
     difficulty: 'beginner',
     category: 'checkmate',
     rating: 800,
     moves: 1
   },
-  {
-    id: 2,
-    fen: '8/8/8/8/8/2K5/5Q2/6k1 w - - 0 1',
-    solution: ['f2g1'],
-    solutionSAN: ['Qg1#'],
-    title: 'Queen Checkmate',
-    description: 'Use your queen to deliver checkmate!',
-    difficulty: 'beginner',
-    category: 'checkmate',
-    rating: 850,
-    moves: 1
-  },
-  {
-    id: 3,
-    fen: '6k1/6pp/8/8/8/8/6PP/5RK1 w - - 0 1',
-    solution: ['f1f8'],
-    solutionSAN: ['Rf8#'],
-    title: 'Back Rank Mate',
-    description: 'The enemy king is trapped on the back rank - deliver mate!',
-    difficulty: 'beginner',
-    category: 'checkmate',
-    rating: 900,
-    moves: 1
-  },
-
-  // Tactical Puzzles - Forks
+  // Scholar's Mate Pattern
   {
     id: 4,
-    fen: '8/3r4/6k1/4N3/8/8/8/6K1 w - - 0 1',
-    solution: ['e5d7'],
-    solutionSAN: ['Nxd7'],
-    title: 'Knight Fork',
-    description: 'The knight can fork the king and rook!',
-    difficulty: 'beginner',
-    category: 'fork',
-    rating: 950,
-    moves: 1
-  },
-  {
-    id: 5,
-    fen: 'r3k2r/8/8/8/3Q4/8/8/4K3 w - - 0 1',
-    solution: ['d4d8'],
-    solutionSAN: ['Qd8+'],
-    title: 'Queen Fork',
-    description: 'Check the king and win a rook with a fork!',
-    difficulty: 'intermediate',
-    category: 'fork',
-    rating: 1200,
-    moves: 1
-  },
-
-  // Pin Tactics
-  {
-    id: 6,
-    fen: '4k3/8/8/8/8/3R4/8/3QK3 w - - 0 1',
-    solution: ['d1d8'],
-    solutionSAN: ['Qd8#'],
-    title: 'Pin and Mate',
-    description: 'The rook pins the king - deliver checkmate!',
-    difficulty: 'intermediate',
-    category: 'pin',
-    rating: 1300,
-    moves: 1
-  },
-
-  // Discovery Attacks
-  {
-    id: 7,
-    fen: '6k1/8/8/8/8/3B4/3N4/6K1 w - - 0 1',
-    solution: ['d2e4'],
-    solutionSAN: ['Ne4'],
-    title: 'Discovered Attack',
-    description: 'Move the knight to discover an attack from the bishop!',
-    difficulty: 'intermediate',
-    category: 'discovery',
-    rating: 1400,
-    moves: 1
-  },
-
-  // Multi-move Puzzles
-  {
-    id: 8,
-    fen: '6k1/pp4pp/8/8/8/8/PP2Q1PP/6K1 w - - 0 1',
-    solution: ['e2e8', 'g8h7', 'e8e7'],
-    solutionSAN: ['Qe8+', 'Kh7', 'Qe7+'],
-    title: 'Queen Hunt',
-    description: 'Use checks to hunt down the enemy king!',
-    difficulty: 'intermediate',
-    category: 'tactics',
-    rating: 1500,
-    moves: 3
-  },
-
-  // Advanced Endgame
-  {
-    id: 9,
-    fen: '8/8/8/8/8/8/1k6/K1R5 w - - 0 1',
-    solution: ['c1c2', 'b2b3', 'c2c3'],
-    solutionSAN: ['Rc2+', 'Kb3', 'Rc3+'],
-    title: 'Rook Endgame',
-    description: 'Cut off the enemy king and promote your advantage!',
-    difficulty: 'advanced',
-    category: 'endgame',
-    rating: 1800,
-    moves: 3
-  },
-
-  // Expert Level
-  {
-    id: 10,
-    fen: '2r1k2r/pp2nppp/2p5/q7/3PP3/2PQ1N2/PP3PPP/R3K2R w KQkq - 0 1',
-    solution: ['f3e5', 'c6c5', 'd3d5'],
-    solutionSAN: ['Ne5', 'c5', 'Qd5'],
-    title: 'Complex Tactics',
-    description: 'Find the winning tactical sequence!',
-    difficulty: 'expert',
-    category: 'tactics',
-    rating: 2200,
-    moves: 3
-  },
-
-  // More Beginner Puzzles
-  {
-    id: 11,
-    fen: '8/8/8/8/8/k7/8/KQ6 w - - 0 1',
-    solution: ['b1b3'],
-    solutionSAN: ['Qb3#'],
-    title: 'Simple Queen Mate',
-    description: 'Move your queen to deliver checkmate!',
+    fen: 'rnbqkbnr/pppp1ppp/8/4p3/2B1P3/5Q2/PPPP1PPP/RNB1K1NR w KQkq - 0 1',
+    solution: ['f3f7'],
+    solutionSAN: ['Qxf7#'],
+    title: "Scholar's Mate",
+    description: 'Attack the weak f7 square with your queen and bishop coordination.',
     difficulty: 'beginner',
     category: 'checkmate',
     rating: 750,
     moves: 1
   },
+  // Discovered Attack Mate
   {
-    id: 12,
-    fen: 'r6k/8/8/8/8/8/8/7R w - - 0 1',
-    solution: ['h1h8'],
-    solutionSAN: ['Rxh8#'],
-    title: 'Rook Takes Rook',
-    description: 'Capture the rook and deliver checkmate!',
+    id: 5,
+    fen: '7k/6pp/8/8/8/8/5Q2/4R2K w - - 0 1',
+    solution: ['e1e8'],
+    solutionSAN: ['Re8#'],
+    title: 'Discovered Attack Mate',
+    description: 'Move one piece to unleash a devastating discovered attack!',
+    difficulty: 'advanced',
+    category: 'checkmate',
+    rating: 1200,
+    moves: 1
+  },
+  // Classic Back Rank Mate
+  {
+    id: 6,
+    fen: '6k1/5ppp/8/8/8/8/8/R6K w - - 0 1',
+    solution: ['a1a8'],
+    solutionSAN: ['Ra8#'],
+    title: 'Back Rank Mate',
+    description: 'The enemy king is trapped on the back rank by its own pawns. Deliver checkmate!',
     difficulty: 'beginner',
     category: 'checkmate',
     rating: 800,
     moves: 1
   },
-
-  // Skewer Tactics
+  // Another Anastasia's Mate variation
   {
-    id: 13,
-    fen: '6k1/8/6K1/8/8/8/8/6R1 w - - 0 1',
-    solution: ['g1g8'],
-    solutionSAN: ['Rg8+'],
-    title: 'Skewer Attack',
-    description: 'Use a skewer to win material!',
+    id: 7,
+    fen: '1k6/1p6/1K6/8/8/8/8/7R w - - 0 1',
+    solution: ['h1h8'],
+    solutionSAN: ['Rh8#'],
+    title: "Anastasia's Mate Variation",
+    description: 'Use your rook to trap the enemy king on the side of the board.',
     difficulty: 'intermediate',
-    category: 'skewer',
-    rating: 1350,
+    category: 'checkmate',
+    rating: 1100,
     moves: 1
   },
-
-  // Opening Traps
+  // Queen Back Rank Mate
   {
-    id: 14,
-    fen: 'rnbqkb1r/pppp1ppp/5n2/4p3/2B1P3/8/PPPP1PPP/RNBQK1NR w KQkq - 0 1',
-    solution: ['c4f7'],
-    solutionSAN: ['Bxf7+'],
-    title: 'Scholar\'s Mate Setup',
-    description: 'Exploit the weak f7 square!',
+    id: 8,
+    fen: '6k1/5ppp/8/8/8/8/8/Q6K w - - 0 1',
+    solution: ['a1a8'],
+    solutionSAN: ['Qa8#'],
+    title: 'Queen Back Rank Mate',
+    description: 'The enemy king is trapped on the back rank by its own pawns. Use your queen to deliver checkmate!',
     difficulty: 'beginner',
-    category: 'opening',
-    rating: 900,
+    category: 'checkmate',
+    rating: 800,
     moves: 1
   },
-
-  // More Advanced Tactics
-  {
-    id: 15,
-    fen: '2r3k1/pp3ppp/8/8/8/2Q5/PP3PPP/6K1 w - - 0 1',
-    solution: ['c3c8', 'g8h7', 'c8c7'],
-    solutionSAN: ['Qc8+', 'Kh7', 'Qxc7'],
-    title: 'Queen Hunt Redux',
-    description: 'Force the king to move and win the rook!',
-    difficulty: 'advanced',
-    category: 'tactics',
-    rating: 1900,
-    moves: 3
-  }
 ];
 
-// Helper functions for puzzle management
 export const getPuzzleById = (id: number): ChessPuzzle | undefined => {
   return chessPuzzles.find(puzzle => puzzle.id === id);
 };
@@ -249,17 +151,9 @@ export const getPuzzleStats = () => {
       beginner: getPuzzlesByDifficulty('beginner').length,
       intermediate: getPuzzlesByDifficulty('intermediate').length,
       advanced: getPuzzlesByDifficulty('advanced').length,
-      expert: getPuzzlesByDifficulty('expert').length,
     },
     byCategory: {
       checkmate: getPuzzlesByCategory('checkmate').length,
-      tactics: getPuzzlesByCategory('tactics').length,
-      endgame: getPuzzlesByCategory('endgame').length,
-      opening: getPuzzlesByCategory('opening').length,
-      fork: getPuzzlesByCategory('fork').length,
-      pin: getPuzzlesByCategory('pin').length,
-      skewer: getPuzzlesByCategory('skewer').length,
-      discovery: getPuzzlesByCategory('discovery').length,
     }
   };
   return stats;

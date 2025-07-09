@@ -1,7 +1,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { ChessPuzzle, chessPuzzles, getPuzzleById, getRandomPuzzle } from '../data/puzzles';
 
-export type PuzzleStatus = 'loading' | 'solving' | 'solved' | 'failed' | 'hint';
+export type PuzzleStatus = 'loading' | 'solving' | 'solved' | 'failed' | 'hint' | 'solution-shown';
 
 export interface PuzzleAttempt {
   move: string;
@@ -24,6 +24,7 @@ export interface PuzzleState {
   currentPuzzle: ChessPuzzle | null;
   currentMoveIndex: number; // Track progress in multi-move puzzles
   status: PuzzleStatus;
+  resetKey: number; // Incremented when puzzle is reset
   
   // User progress
   attempts: PuzzleAttempt[];
@@ -102,6 +103,7 @@ const initialState: PuzzleState = {
   currentPuzzle: null,
   currentMoveIndex: 0,
   status: 'loading',
+  resetKey: 0,
   
   attempts: [],
   hintsUsed: 0,
@@ -253,7 +255,7 @@ const puzzleSlice = createSlice({
 
     showSolution: (state) => {
       state.showSolution = true;
-      state.status = 'failed';
+      state.status = 'solution-shown';
       state.feedback = 'Solution revealed. Study the moves to learn!';
     },
 
@@ -326,6 +328,7 @@ const puzzleSlice = createSlice({
         state.startTime = Date.now();
         state.feedback = null;
         state.showSolution = false;
+        state.resetKey += 1; // Increment to trigger board reset
       }
     },
 

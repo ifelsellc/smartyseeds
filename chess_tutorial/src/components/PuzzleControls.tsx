@@ -76,6 +76,7 @@ const PuzzleControls: React.FC = () => {
       case 'solved': return 'text-green-600';
       case 'failed': return 'text-red-600';
       case 'hint': return 'text-blue-600';
+      case 'solution-shown': return 'text-purple-600';
       default: return 'text-gray-600';
     }
   };
@@ -135,6 +136,7 @@ const PuzzleControls: React.FC = () => {
               status === 'solved' ? 'bg-green-500' :
               status === 'failed' ? 'bg-red-500' :
               status === 'solving' ? 'bg-blue-500' :
+              status === 'solution-shown' ? 'bg-purple-500' :
               'bg-gray-400'
             }`} />
             <span className="text-gray-600 dark:text-gray-400">Status:</span>
@@ -167,7 +169,7 @@ const PuzzleControls: React.FC = () => {
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             onClick={handleShowSolution}
-            disabled={status === 'solved'}
+            disabled={status === 'solved' || status === 'solution-shown'}
             className="flex items-center justify-center gap-2 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             <Eye className="w-4 h-4" />

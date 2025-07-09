@@ -14,7 +14,7 @@ interface PuzzleBoardProps {
 
 const PuzzleBoard: React.FC<PuzzleBoardProps> = ({ size = 640 }) => {
   const dispatch = useDispatch();
-  const { currentPuzzle, status, showSolution, feedback, currentMoveIndex } = useSelector((state: RootState) => state.puzzle);
+  const { currentPuzzle, status, showSolution, feedback, currentMoveIndex, resetKey, attempts } = useSelector((state: RootState) => state.puzzle);
   const { getPieceRepresentation, isUnicodeSet } = useChessPieces();
   const { playMove, playCapture, playCheck } = useSoundEffects();
   
@@ -34,6 +34,17 @@ const PuzzleBoard: React.FC<PuzzleBoardProps> = ({ size = 640 }) => {
       setLastMove(null);
     }
   }, [currentPuzzle]);
+
+  // Reset board state when puzzle is reset (triggered by resetKey change)
+  useEffect(() => {
+    if (currentPuzzle && resetKey > 0) {
+      const game = new Chess(currentPuzzle.fen);
+      setChessGame(game);
+      setSelectedSquare(null);
+      setPossibleMoves([]);
+      setLastMove(null);
+    }
+  }, [currentPuzzle, resetKey]);
 
   // Auto-clear feedback after 3 seconds
   useEffect(() => {
@@ -111,7 +122,17 @@ const PuzzleBoard: React.FC<PuzzleBoardProps> = ({ size = 640 }) => {
   const renderPiece = (piece: any, square: string) => {
     if (!piece) return null;
 
-    const pieceType = piece.type as PieceType;
+    // Map chess.js piece types to our PieceType interface
+    const pieceTypeMap: Record<string, PieceType> = {
+      'p': 'pawn',
+      'r': 'rook',
+      'n': 'knight',
+      'b': 'bishop',
+      'q': 'queen',
+      'k': 'king'
+    };
+
+    const pieceType = pieceTypeMap[piece.type] || 'pawn';
     const pieceColor = piece.color === 'w' ? 'white' : 'black';
     const pieceRepresentation = getPieceRepresentation(pieceType, pieceColor);
 
@@ -300,6 +321,7 @@ const PuzzleBoard: React.FC<PuzzleBoardProps> = ({ size = 640 }) => {
               status === 'solved' ? 'bg-green-100 text-green-800' :
               status === 'failed' ? 'bg-red-100 text-red-800' :
               status === 'hint' ? 'bg-blue-100 text-blue-800' :
+              status === 'solution-shown' ? 'bg-purple-100 text-purple-800' :
               'bg-yellow-100 text-yellow-800'
             }`}
           >
