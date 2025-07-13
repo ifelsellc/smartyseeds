@@ -1,9 +1,9 @@
 import React, { useState } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import { RootState } from '../store/store'
-import { startNewGame, undoMove, pauseGame, resumeGame, jumpToMove } from '../store/gameSlice'
+import { startNewGame, undoMove, pauseGame, resumeGame, jumpToMove, replayFromPosition, openPositionBrowser } from '../store/gameSlice'
 import { resetAI } from '../store/aiSlice'
-import { Play, Pause, RotateCcw, RefreshCw, SkipBack, SkipForward } from 'lucide-react'
+import { Play, Pause, RotateCcw, RefreshCw, SkipBack, SkipForward, Repeat } from 'lucide-react'
 
 const GameControls: React.FC = () => {
   const dispatch = useDispatch()
@@ -75,6 +75,15 @@ const GameControls: React.FC = () => {
     }
   }
 
+  const handleReplayFromHere = () => {
+    dispatch(replayFromPosition(currentMoveIndex))
+    dispatch(resetAI())
+  }
+
+  const handleOpenPositionBrowser = () => {
+    dispatch(openPositionBrowser())
+  }
+
   const canUndo = currentMoveIndex >= 0 && status !== 'finished' && !thinking
   const canStepBack = currentMoveIndex > -1
   const canStepForward = currentMoveIndex < gameHistory.length - 1
@@ -144,6 +153,39 @@ const GameControls: React.FC = () => {
           Step Forward
         </button>
       </div>
+
+      {/* Position Browser & Replay */}
+      {gameHistory.length > 0 && (
+        <div className="border-t pt-4">
+          <h4 className="text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
+            Position Management
+          </h4>
+          <div className="space-y-2">
+            <button
+              onClick={handleOpenPositionBrowser}
+              className="control-button bg-blue-600 hover:bg-blue-700 w-full"
+              disabled={thinking}
+            >
+              <Repeat className="w-4 h-4 mr-2" />
+              Browse & Replay Positions
+            </button>
+            
+            {(status === 'finished' || status === 'paused') && (
+              <button
+                onClick={handleReplayFromHere}
+                className="control-button bg-purple-600 hover:bg-purple-700 w-full"
+                disabled={thinking}
+              >
+                <Repeat className="w-4 h-4 mr-2" />
+                Quick Replay from Move {currentMoveIndex + 1}
+              </button>
+            )}
+          </div>
+          <p className="text-xs text-gray-500 mt-2">
+            Browse positions, save scenarios, and practice different moves
+          </p>
+        </div>
+      )}
 
       {/* Replay Controls */}
       <div className="border-t pt-4">

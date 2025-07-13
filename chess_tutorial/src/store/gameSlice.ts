@@ -8,6 +8,23 @@ export interface GameMove {
   timestamp: number
 }
 
+export interface SavedPosition {
+  id: string
+  name: string
+  fen: string
+  moveIndex: number
+  description?: string
+  createdAt: number
+  gameHistory: GameMove[] // Store the history up to this point
+}
+
+export interface PositionBrowser {
+  isOpen: boolean
+  selectedPositionId: string | null
+  previewMoveIndex: number
+  isPreviewMode: boolean
+}
+
 export interface GameState {
   chessGame: Chess
   gameHistory: GameMove[]
@@ -40,6 +57,21 @@ export interface GameState {
     to: string | null
   }
   showResultModal: boolean
+  savedPositions: SavedPosition[]
+  positionBrowser: PositionBrowser
+}
+
+// Load saved positions from localStorage
+const loadSavedPositions = (): SavedPosition[] => {
+  try {
+    const saved = localStorage.getItem('chess-saved-positions')
+    if (saved) {
+      return JSON.parse(saved)
+    }
+  } catch (error) {
+    console.warn('Failed to load saved positions from localStorage:', error)
+  }
+  return []
 }
 
 const initialState: GameState = {
@@ -73,7 +105,14 @@ const initialState: GameState = {
     from: null,
     to: null
   },
-  showResultModal: false
+  showResultModal: false,
+  savedPositions: loadSavedPositions(),
+  positionBrowser: {
+    isOpen: false,
+    selectedPositionId: null,
+    previewMoveIndex: -1,
+    isPreviewMode: false
+  }
 }
 
 const gameSlice = createSlice({
@@ -172,8 +211,8 @@ const gameSlice = createSlice({
       } else {
         state.selectedSquare = square
         // Get possible moves for this square
-        const moves = state.chessGame.moves({ square, verbose: true })
-        state.possibleMoves = moves.map(move => move.to)
+        const moves = state.chessGame.moves({ square: square as any, verbose: true })
+        state.possibleMoves = moves.map((move: any) => move.to)
       }
     },
 
@@ -292,12 +331,243 @@ const gameSlice = createSlice({
 
     dismissResultModal: (state) => {
       state.showResultModal = false
+    },
+
+    replayFromPosition: (state, action: PayloadAction<number>) => {
+      const moveIndex = action.payload
+      
+      if (moveIndex >= -1 && moveIndex < state.gameHistory.length) {
+        // Set the game to the specified position
+        state.currentMoveIndex = moveIndex
+        
+        if (moveIndex >= 0) {
+          const targetMove = state.gameHistory[moveIndex]
+          state.chessGame.load(targetMove.fen)
+        } else {
+          state.chessGame.reset()
+        }
+        
+        // Truncate game history after this point to allow new moves
+        state.gameHistory = state.gameHistory.slice(0, moveIndex + 1)
+        
+        // Reset game state for continued play
+        state.status = 'playing'
+        state.result = null
+        state.showResultModal = false
+        state.selectedSquare = null
+        state.possibleMoves = []
+        state.lastMove = null
+        
+        // Update game state based on position
+        state.isPlayerTurn = state.chessGame.turn() === 'w'
+        
+        // Update check status
+        if (state.chessGame.inCheck()) {
+          state.isInCheck = true
+          state.checkSquare = state.chessGame.turn() === 'w' ? 
+            findKingSquare(state.chessGame, 'w') : 
+            findKingSquare(state.chessGame, 'b')
+        } else {
+          state.isInCheck = false
+          state.checkSquare = null
+        }
+
+        // Reset captured pieces - will be recalculated as new moves are made
+        state.capturedPieces = { white: [], black: [] }
+
+        // Clear patterns and hints
+        state.patterns = { fork: [], pin: [], discoveredAttack: [] }
+        state.hints = { enabled: false, candidateMoves: [], currentHint: null }
+        state.aiMoveAnimation = { isAnimating: false, from: null, to: null }
+      }
+    },
+
+    // Position Browser Actions
+    openPositionBrowser: (state) => {
+      state.positionBrowser.isOpen = true
+      state.positionBrowser.isPreviewMode = false
+      state.positionBrowser.selectedPositionId = null
+      state.positionBrowser.previewMoveIndex = state.currentMoveIndex
+    },
+
+    closePositionBrowser: (state) => {
+      state.positionBrowser.isOpen = false
+      state.positionBrowser.isPreviewMode = false
+      state.positionBrowser.selectedPositionId = null
+      // Return to original position if we were previewing
+      if (state.positionBrowser.isPreviewMode) {
+        if (state.positionBrowser.previewMoveIndex >= 0) {
+          const targetMove = state.gameHistory[state.positionBrowser.previewMoveIndex]
+          state.chessGame.load(targetMove.fen)
+        } else {
+          state.chessGame.reset()
+        }
+        state.currentMoveIndex = state.positionBrowser.previewMoveIndex
+      }
+    },
+
+    previewPosition: (state, action: PayloadAction<{ moveIndex: number; positionId?: string }>) => {
+      const { moveIndex, positionId } = action.payload
+      
+      // Enter preview mode
+      state.positionBrowser.isPreviewMode = true
+      state.positionBrowser.selectedPositionId = positionId || null
+      
+      // Load the position
+      if (moveIndex >= 0 && moveIndex < state.gameHistory.length) {
+        const targetMove = state.gameHistory[moveIndex]
+        state.chessGame.load(targetMove.fen)
+        state.currentMoveIndex = moveIndex
+      } else if (moveIndex === -1) {
+        state.chessGame.reset()
+        state.currentMoveIndex = -1
+      }
+      
+      // Update game state for preview
+      state.isPlayerTurn = state.chessGame.turn() === 'w'
+      state.selectedSquare = null
+      state.possibleMoves = []
+      
+      if (state.chessGame.inCheck()) {
+        state.isInCheck = true
+        state.checkSquare = state.chessGame.turn() === 'w' ? 
+          findKingSquare(state.chessGame, 'w') : 
+          findKingSquare(state.chessGame, 'b')
+      } else {
+        state.isInCheck = false
+        state.checkSquare = null
+      }
+    },
+
+    confirmReplayFromPreview: (state) => {
+      if (state.positionBrowser.isPreviewMode) {
+        const moveIndex = state.currentMoveIndex
+        
+        // Truncate game history after this point to allow new moves
+        state.gameHistory = state.gameHistory.slice(0, moveIndex + 1)
+        
+        // Reset game state for continued play
+        state.status = 'playing'
+        state.result = null
+        state.showResultModal = false
+        state.selectedSquare = null
+        state.possibleMoves = []
+        state.lastMove = null
+        
+        // Reset captured pieces - will be recalculated as new moves are made
+        state.capturedPieces = { white: [], black: [] }
+
+        // Clear patterns and hints
+        state.patterns = { fork: [], pin: [], discoveredAttack: [] }
+        state.hints = { enabled: false, candidateMoves: [], currentHint: null }
+        state.aiMoveAnimation = { isAnimating: false, from: null, to: null }
+        
+        // Close position browser
+        state.positionBrowser.isOpen = false
+        state.positionBrowser.isPreviewMode = false
+        state.positionBrowser.selectedPositionId = null
+      }
+    },
+
+    // Saved Positions Actions
+    saveCurrentPosition: (state, action: PayloadAction<{ name: string; description?: string }>) => {
+      const { name, description } = action.payload
+      
+      const savedPosition: SavedPosition = {
+        id: `pos_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+        name,
+        description,
+        fen: state.chessGame.fen(),
+        moveIndex: state.currentMoveIndex,
+        createdAt: Date.now(),
+        gameHistory: [...state.gameHistory.slice(0, state.currentMoveIndex + 1)]
+      }
+      
+      state.savedPositions.push(savedPosition)
+      
+      // Save to localStorage
+      try {
+        localStorage.setItem('chess-saved-positions', JSON.stringify(state.savedPositions))
+      } catch (error) {
+        console.warn('Failed to save positions to localStorage:', error)
+      }
+    },
+
+    loadSavedPosition: (state, action: PayloadAction<string>) => {
+      const positionId = action.payload
+      const savedPosition = state.savedPositions.find(pos => pos.id === positionId)
+      
+      if (savedPosition) {
+        // Load the saved game state
+        state.gameHistory = [...savedPosition.gameHistory]
+        state.currentMoveIndex = savedPosition.moveIndex
+        state.chessGame.load(savedPosition.fen)
+        
+        // Update game state
+        state.isPlayerTurn = state.chessGame.turn() === 'w'
+        state.selectedSquare = null
+        state.possibleMoves = []
+        state.lastMove = null
+        
+        if (state.chessGame.inCheck()) {
+          state.isInCheck = true
+          state.checkSquare = state.chessGame.turn() === 'w' ? 
+            findKingSquare(state.chessGame, 'w') : 
+            findKingSquare(state.chessGame, 'b')
+        } else {
+          state.isInCheck = false
+          state.checkSquare = null
+        }
+      }
+    },
+
+    deleteSavedPosition: (state, action: PayloadAction<string>) => {
+      const positionId = action.payload
+      state.savedPositions = state.savedPositions.filter(pos => pos.id !== positionId)
+      
+      // Update localStorage
+      try {
+        localStorage.setItem('chess-saved-positions', JSON.stringify(state.savedPositions))
+      } catch (error) {
+        console.warn('Failed to update saved positions in localStorage:', error)
+      }
+    },
+
+    renameSavedPosition: (state, action: PayloadAction<{ id: string; name: string; description?: string }>) => {
+      const { id, name, description } = action.payload
+      const position = state.savedPositions.find(pos => pos.id === id)
+      
+      if (position) {
+        position.name = name
+        if (description !== undefined) {
+          position.description = description
+        }
+        
+        // Update localStorage
+        try {
+          localStorage.setItem('chess-saved-positions', JSON.stringify(state.savedPositions))
+        } catch (error) {
+          console.warn('Failed to update saved positions in localStorage:', error)
+        }
+      }
+    },
+
+    refreshSavedPositions: (state) => {
+      try {
+        const saved = localStorage.getItem('chess-saved-positions')
+        if (saved) {
+          state.savedPositions = JSON.parse(saved)
+        }
+      } catch (error) {
+        console.warn('Failed to load saved positions from localStorage:', error)
+        state.savedPositions = []
+      }
     }
   }
 })
 
 // Helper function to find king square
-function findKingSquare(game: Chess, color: 'w' | 'b'): string {
+function findKingSquare(game: any, color: 'w' | 'b'): string {
   const board = game.board()
   for (let rank = 0; rank < 8; rank++) {
     for (let file = 0; file < 8; file++) {
@@ -326,7 +596,17 @@ export const {
   setPatterns,
   startAIMoveAnimation,
   endAIMoveAnimation,
-  dismissResultModal
+  dismissResultModal,
+  replayFromPosition,
+  openPositionBrowser,
+  closePositionBrowser,
+  previewPosition,
+  confirmReplayFromPreview,
+  saveCurrentPosition,
+  loadSavedPosition,
+  deleteSavedPosition,
+  renameSavedPosition,
+  refreshSavedPositions
 } = gameSlice.actions
 
 export default gameSlice.reducer 

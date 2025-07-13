@@ -12,6 +12,7 @@ import GameResultModal from './components/GameResultModal'
 import ChessSetSelector from './components/ChessSetSelector'
 import ChessSetButton from './components/ChessSetButton'
 import PuzzleMode from './components/PuzzleMode'
+import { PositionBrowser } from './components/PositionBrowser'
 import { ThemeProvider } from './contexts/ThemeContext'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Target, Gamepad2, Users, BookOpen } from 'lucide-react'
@@ -186,6 +187,9 @@ function App() {
       
       {/* Game Result Modal */}
       <GameResultModal />
+      
+      {/* Position Browser Modal */}
+      <PositionBrowser />
     </motion.div>
   )
   
