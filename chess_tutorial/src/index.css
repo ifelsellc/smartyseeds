@@ -56,6 +56,10 @@
     justify-content: center;
   }
   
+  .chess-piece span {
+    font-size: 72px; /* Larger font size specifically for Unicode pieces */
+  }
+  
   .chess-piece img {
     max-width: 100%;
     max-height: 100%;

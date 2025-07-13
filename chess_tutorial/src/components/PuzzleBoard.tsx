@@ -148,7 +148,7 @@ const PuzzleBoard: React.FC<PuzzleBoardProps> = ({ size = 640 }) => {
       <motion.div
         key={`${piece.color}${piece.type}-${square}`}
         className={`absolute inset-0 flex items-center justify-center cursor-pointer select-none ${
-          isUnicodeSet() ? 'text-4xl' : ''
+          isUnicodeSet() ? 'text-6xl' : ''
         }`}
         initial={isAnimated ? { scale: 1.2, rotate: 15 } : false}
         animate={{ scale: 1, rotate: 0 }}
@@ -169,7 +169,7 @@ const PuzzleBoard: React.FC<PuzzleBoardProps> = ({ size = 640 }) => {
               const target = e.target as HTMLImageElement;
               const fallbackSpan = document.createElement('span');
               fallbackSpan.textContent = unicodeFallback[pieceColor][pieceType];
-              fallbackSpan.className = 'text-4xl drop-shadow-sm';
+              fallbackSpan.className = 'text-6xl drop-shadow-sm';
               target.parentNode?.replaceChild(fallbackSpan, target);
             }}
           />

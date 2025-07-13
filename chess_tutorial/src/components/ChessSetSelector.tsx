@@ -70,9 +70,9 @@ const ChessSetSelector: React.FC = () => {
         </div>
 
                  {/* Preview */}
-         <div className="flex justify-center mb-3 h-16 items-center">
-           {chessSet.isUnicode ? (
-             <div className="text-4xl space-x-1">
+                 <div className="flex justify-center mb-3 h-16 items-center">
+          {chessSet.isUnicode ? (
+            <div className="text-5xl space-x-1">
                <span>{chessSet.white.king}</span>
                <span>{chessSet.white.queen}</span>
                <span>{chessSet.white.rook}</span>

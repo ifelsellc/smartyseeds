@@ -41,7 +41,7 @@ const PromotionDialog: React.FC<{
               onClick={() => onSelect(piece.value)}
               className="flex flex-col items-center p-6 rounded-lg border-2 border-gray-200 dark:border-gray-600 hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors"
             >
-              <div className="text-6xl mb-2 w-16 h-16 flex items-center justify-center">
+              <div className="text-7xl mb-2 w-16 h-16 flex items-center justify-center">
                 {isUnicodeSet() ? (
                   <span>{piece.symbol}</span>
                 ) : (
@@ -395,7 +395,7 @@ const ChessBoard: React.FC = () => {
                                            piece.type === 'k' ? 'king' : 'pawn';
                             const fallbackSpan = document.createElement('span');
                             fallbackSpan.textContent = unicodeFallback[pieceColor][pieceType];
-                            fallbackSpan.className = 'text-4xl';
+                            fallbackSpan.className = 'text-6xl';
                             target.parentNode?.replaceChild(fallbackSpan, target);
                           }
                         }}
