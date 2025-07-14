@@ -68,32 +68,51 @@ const GameResultModal: React.FC = () => {
         return {
           title: 'Victory!',
           subtitle: 'You won by checkmate!',
-          emoji: '🎉'
+          emoji: '🎉',
+          explanation: 'Checkmate occurs when the king is in check and has no legal moves to escape capture.'
         }
       } else {
         return {
           title: 'Defeat',
           subtitle: 'AI won by checkmate',
-          emoji: '🤖'
+          emoji: '🤖',
+          explanation: 'Checkmate occurs when the king is in check and has no legal moves to escape capture.'
         }
       }
     } else if (result.includes('Stalemate')) {
       return {
-        title: 'Stalemate',
+        title: 'Stalemate Draw',
         subtitle: 'No legal moves available',
-        emoji: '🤝'
+        emoji: '🤝',
+        explanation: 'Stalemate happens when a player has no legal moves but their king is not in check. This automatically results in a draw, not a loss!'
+      }
+    } else if (result.includes('insufficient material')) {
+      return {
+        title: 'Draw by Insufficient Material',
+        subtitle: 'Not enough pieces to checkmate',
+        emoji: '🤝',
+        explanation: 'Neither player has enough pieces left to deliver checkmate. Examples: King vs King, King + Bishop vs King, King + Knight vs King.'
+      }
+    } else if (result.includes('threefold repetition')) {
+      return {
+        title: 'Draw by Repetition',
+        subtitle: 'Same position occurred 3 times',
+        emoji: '🤝',
+        explanation: 'When the exact same position occurs three times in a game, it automatically results in a draw. This prevents endless repetition.'
       }
     } else if (result.includes('Draw')) {
       return {
         title: 'Draw',
         subtitle: 'Game ended in a draw',
-        emoji: '🤝'
+        emoji: '🤝',
+        explanation: 'The game ended in a draw due to chess rules. This could be the 50-move rule (50 moves without a pawn move or capture) or other draw conditions.'
       }
     }
     return {
       title: 'Game Over',
       subtitle: result,
-      emoji: '🏁'
+      emoji: '🏁',
+      explanation: 'The game has ended.'
     }
   }
 
@@ -167,11 +186,27 @@ const GameResultModal: React.FC = () => {
             </motion.p>
           </div>
 
-          {/* Game Statistics */}
+          {/* Rule Explanation */}
           <motion.div
             initial={{ y: 20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: 0.5 }}
+            className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4 mb-6 border border-blue-200 dark:border-blue-800"
+          >
+            <h3 className="text-sm font-medium text-blue-800 dark:text-blue-200 mb-2 flex items-center">
+              <Trophy className="w-4 h-4 mr-2" />
+              Rule Explanation
+            </h3>
+            <p className="text-sm text-blue-700 dark:text-blue-300 leading-relaxed">
+              {resultInfo.explanation}
+            </p>
+          </motion.div>
+
+          {/* Game Statistics */}
+          <motion.div
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay: 0.6 }}
             className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 mb-6"
           >
             <h3 className="text-sm font-medium text-gray-600 dark:text-gray-300 mb-3 flex items-center">

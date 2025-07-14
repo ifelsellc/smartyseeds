@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useRef } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import { RootState } from '../store/store'
 import { startNewGame, undoMove, pauseGame, resumeGame, jumpToMove, continueFromPosition, openPositionBrowser } from '../store/gameSlice'
@@ -9,6 +9,7 @@ const GameControls: React.FC = () => {
   const dispatch = useDispatch()
   const [isReplaying, setIsReplaying] = useState(false)
   const [replaySpeed, setReplaySpeed] = useState(1000) // milliseconds between moves
+  const cancelWatchRef = useRef(false)
   
   const { status, gameHistory, currentMoveIndex, savedPositions } = useSelector((state: RootState) => state.game)
   const { thinking } = useSelector((state: RootState) => state.ai)
@@ -16,6 +17,7 @@ const GameControls: React.FC = () => {
   const handleNewGame = () => {
     dispatch(startNewGame())
     dispatch(resetAI())
+    cancelWatchRef.current = true
     setIsReplaying(false)
   }
 
@@ -37,6 +39,7 @@ const GameControls: React.FC = () => {
     if (gameHistory.length === 0) return
     
     setIsReplaying(true)
+    cancelWatchRef.current = false
     
     // Start from the beginning
     dispatch(jumpToMove(-1))
@@ -44,7 +47,7 @@ const GameControls: React.FC = () => {
     // Watch each move with delay
     for (let i = 0; i < gameHistory.length; i++) {
       await new Promise(resolve => setTimeout(resolve, replaySpeed))
-      if (!isReplaying) break // Allow cancellation
+      if (cancelWatchRef.current) break // Allow cancellation
       dispatch(jumpToMove(i))
     }
     
@@ -52,6 +55,7 @@ const GameControls: React.FC = () => {
   }
 
   const stopWatchGame = () => {
+    cancelWatchRef.current = true
     setIsReplaying(false)
   }
 

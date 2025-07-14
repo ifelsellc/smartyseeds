@@ -228,10 +228,15 @@ const gameSlice = createSlice({
             state.showResultModal = true
             if (state.chessGame.isCheckmate()) {
               state.result = `Checkmate! ${state.chessGame.turn() === 'w' ? 'Black' : 'White'} wins!`
-            } else if (state.chessGame.isDraw()) {
-              state.result = 'Draw!'
             } else if (state.chessGame.isStalemate()) {
-              state.result = 'Stalemate!'
+              state.result = 'Stalemate! The player to move has no legal moves but is not in check. This results in a draw.'
+            } else if (state.chessGame.isInsufficientMaterial()) {
+              state.result = 'Draw by insufficient material! Neither side has enough pieces to deliver checkmate.'
+            } else if (state.chessGame.isThreefoldRepetition()) {
+              state.result = 'Draw by threefold repetition! The same position has occurred three times.'
+            } else if (state.chessGame.isDraw()) {
+              // This catches other draw conditions like 50-move rule
+              state.result = 'Draw! The game has ended in a draw due to chess rules.'
             }
           }
         }
