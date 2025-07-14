@@ -4,7 +4,7 @@ import { RootState } from '../store/store'
 import {
   closePositionBrowser,
   previewPosition,
-  confirmReplayFromPreview,
+  confirmContinueFromPreview,
   saveCurrentPosition,
   loadSavedPosition,
   deleteSavedPosition,
@@ -43,8 +43,8 @@ export const PositionBrowser: React.FC<PositionBrowserProps> = () => {
     dispatch(previewPosition({ moveIndex, positionId }))
   }
 
-  const handleConfirmReplay = () => {
-    dispatch(confirmReplayFromPreview())
+  const handleConfirmContinue = () => {
+    dispatch(confirmContinueFromPreview())
     dispatch(resetAI())
   }
 
@@ -331,7 +331,7 @@ export const PositionBrowser: React.FC<PositionBrowserProps> = () => {
             </button>
             {positionBrowser.isPreviewMode && (
               <button
-                onClick={handleConfirmReplay}
+                onClick={handleConfirmContinue}
                 className="px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700"
               >
                 Start Playing from Here

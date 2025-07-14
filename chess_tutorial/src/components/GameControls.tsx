@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import { RootState } from '../store/store'
-import { startNewGame, undoMove, pauseGame, resumeGame, jumpToMove, replayFromPosition, openPositionBrowser } from '../store/gameSlice'
+import { startNewGame, undoMove, pauseGame, resumeGame, jumpToMove, continueFromPosition, openPositionBrowser } from '../store/gameSlice'
 import { resetAI } from '../store/aiSlice'
 import { Play, Pause, RotateCcw, RefreshCw, SkipBack, SkipForward, Repeat } from 'lucide-react'
 
@@ -10,7 +10,7 @@ const GameControls: React.FC = () => {
   const [isReplaying, setIsReplaying] = useState(false)
   const [replaySpeed, setReplaySpeed] = useState(1000) // milliseconds between moves
   
-  const { status, gameHistory, currentMoveIndex } = useSelector((state: RootState) => state.game)
+  const { status, gameHistory, currentMoveIndex, savedPositions } = useSelector((state: RootState) => state.game)
   const { thinking } = useSelector((state: RootState) => state.ai)
 
   const handleNewGame = () => {
@@ -29,15 +29,11 @@ const GameControls: React.FC = () => {
 
   const handleUndo = () => {
     if (currentMoveIndex >= 0) {
-      // Auto-pause the game before undoing
-      if (status === 'playing') {
-        dispatch(pauseGame())
-      }
       dispatch(undoMove())
     }
   }
 
-  const handleReplay = async () => {
+  const handleWatchGame = async () => {
     if (gameHistory.length === 0) return
     
     setIsReplaying(true)
@@ -45,7 +41,7 @@ const GameControls: React.FC = () => {
     // Start from the beginning
     dispatch(jumpToMove(-1))
     
-    // Replay each move with delay
+    // Watch each move with delay
     for (let i = 0; i < gameHistory.length; i++) {
       await new Promise(resolve => setTimeout(resolve, replaySpeed))
       if (!isReplaying) break // Allow cancellation
@@ -55,16 +51,12 @@ const GameControls: React.FC = () => {
     setIsReplaying(false)
   }
 
-  const stopReplay = () => {
+  const stopWatchGame = () => {
     setIsReplaying(false)
   }
 
   const handleStepBack = () => {
     if (currentMoveIndex > -1) {
-      // Auto-pause the game before stepping back
-      if (status === 'playing') {
-        dispatch(pauseGame())
-      }
       dispatch(jumpToMove(currentMoveIndex - 1))
     }
   }
@@ -75,8 +67,8 @@ const GameControls: React.FC = () => {
     }
   }
 
-  const handleReplayFromHere = () => {
-    dispatch(replayFromPosition(currentMoveIndex))
+  const handleContinueFromHere = () => {
+    dispatch(continueFromPosition(currentMoveIndex))
     dispatch(resetAI())
   }
 
@@ -87,6 +79,9 @@ const GameControls: React.FC = () => {
   const canUndo = currentMoveIndex >= 0 && status !== 'finished' && !thinking
   const canStepBack = currentMoveIndex > -1
   const canStepForward = currentMoveIndex < gameHistory.length - 1
+  
+  // Check if this is a fresh game (no moves made)
+  const isNewGame = status === 'idle' && gameHistory.length === 0
 
   return (
     <div className="mt-4 p-4 bg-white dark:bg-gray-800 rounded-lg shadow-lg">
@@ -98,11 +93,23 @@ const GameControls: React.FC = () => {
       <div className="flex flex-wrap gap-2 mb-4">
         <button
           onClick={handleNewGame}
-          className="control-button"
+          className={isNewGame 
+            ? "px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition-colors duration-200 flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
+            : "control-button"
+          }
           disabled={thinking}
         >
-          <RefreshCw className="w-4 h-4 mr-2" />
-          New Game
+          {isNewGame ? (
+            <>
+              <Play className="w-4 h-4 mr-2" />
+              Start Game
+            </>
+          ) : (
+            <>
+              <RefreshCw className="w-4 h-4 mr-2" />
+              New Game
+            </>
+          )}
         </button>
         
         <button
@@ -155,42 +162,47 @@ const GameControls: React.FC = () => {
       </div>
 
       {/* Position Browser & Replay */}
-      {gameHistory.length > 0 && (
-        <div className="border-t pt-4">
-          <h4 className="text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
-            Position Management
-          </h4>
-          <div className="space-y-2">
-            <button
-              onClick={handleOpenPositionBrowser}
-              className="control-button bg-blue-600 hover:bg-blue-700 w-full"
-              disabled={thinking}
-            >
-              <Repeat className="w-4 h-4 mr-2" />
-              Browse & Replay Positions
-            </button>
-            
-            {(status === 'finished' || status === 'paused') && (
-              <button
-                onClick={handleReplayFromHere}
-                className="control-button bg-purple-600 hover:bg-purple-700 w-full"
-                disabled={thinking}
-              >
-                <Repeat className="w-4 h-4 mr-2" />
-                Quick Replay from Move {currentMoveIndex + 1}
-              </button>
-            )}
-          </div>
-          <p className="text-xs text-gray-500 mt-2">
-            Browse positions, save scenarios, and practice different moves
-          </p>
-        </div>
-      )}
-
-      {/* Replay Controls */}
       <div className="border-t pt-4">
         <h4 className="text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
-          Replay Game
+          Position Management
+        </h4>
+        <div className="space-y-2">
+          <button
+            onClick={handleOpenPositionBrowser}
+            className="control-button bg-blue-600 hover:bg-blue-700 w-full"
+            disabled={thinking}
+          >
+            <Repeat className="w-4 h-4 mr-2" />
+            Browse & Continue from Positions
+          </button>
+          
+          {gameHistory.length > 0 && (status === 'finished' || status === 'paused') && (
+            <button
+                          onClick={handleContinueFromHere}
+            className="control-button bg-purple-600 hover:bg-purple-700 w-full"
+            disabled={thinking}
+          >
+            <Repeat className="w-4 h-4 mr-2" />
+            Continue from Move {currentMoveIndex + 1}
+          </button>
+          )}
+        </div>
+        <p className="text-xs text-gray-500 mt-2">
+          {gameHistory.length > 0 && savedPositions.length > 0
+            ? "Browse game history, manage saved positions, and practice different moves"
+            : gameHistory.length > 0
+            ? "Browse game history, save current position, and practice different moves"
+            : savedPositions.length > 0
+            ? "Access your saved positions and start new games from specific setups"
+            : "Save interesting positions during play and access them later"
+          }
+        </p>
+      </div>
+
+      {/* Watch Game Controls */}
+      <div className="border-t pt-4">
+        <h4 className="text-sm font-medium mb-2 text-gray-700 dark:text-gray-300">
+          Watch Game
         </h4>
         
         <div className="flex items-center gap-2 mb-2">
@@ -211,20 +223,20 @@ const GameControls: React.FC = () => {
         <div className="flex gap-2">
           {!isReplaying ? (
             <button
-              onClick={handleReplay}
+              onClick={handleWatchGame}
               className="control-button text-sm"
               disabled={gameHistory.length === 0 || thinking}
             >
               <Play className="w-3 h-3 mr-1" />
-              Replay
+              Watch Game
             </button>
           ) : (
             <button
-              onClick={stopReplay}
+              onClick={stopWatchGame}
               className="control-button bg-red-600 hover:bg-red-700 text-sm"
             >
               <Pause className="w-3 h-3 mr-1" />
-              Stop Replay
+              Stop Playback
             </button>
           )}
         </div>

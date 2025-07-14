@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import { RootState } from '../store/store'
-import { startNewGame, dismissResultModal, replayFromPosition, openPositionBrowser } from '../store/gameSlice'
+import { startNewGame, dismissResultModal, continueFromPosition, openPositionBrowser } from '../store/gameSlice'
 import { resetAI } from '../store/aiSlice'
 import { Trophy, Medal, Users, RotateCcw, Eye, Crown, Zap, X, Repeat } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -17,8 +17,8 @@ const GameResultModal: React.FC = () => {
     dispatch(resetAI())
   }
 
-  const handleReplayFromPosition = (moveIndex: number) => {
-    dispatch(replayFromPosition(moveIndex))
+  const handleContinueFromPosition = (moveIndex: number) => {
+    dispatch(continueFromPosition(moveIndex))
     dispatch(resetAI())
   }
 
@@ -233,11 +233,11 @@ const GameResultModal: React.FC = () => {
                   Browse & Select Position
                 </button>
                 
-                {/* Quick Replay Options */}
-                <p className="text-xs text-gray-500 mb-2">Quick replay options:</p>
+                {/* Quick Continue Options */}
+                <p className="text-xs text-gray-500 mb-2">Quick continue options:</p>
                 <div className="flex gap-2">
                   <button
-                    onClick={() => handleReplayFromPosition(-1)}
+                    onClick={() => handleContinueFromPosition(-1)}
                     className="flex-1 bg-purple-600 hover:bg-purple-700 text-white font-medium py-2 px-3 rounded-lg transition-colors duration-200 flex items-center justify-center gap-2 text-sm"
                   >
                     <Repeat className="w-3 h-3" />
@@ -246,7 +246,7 @@ const GameResultModal: React.FC = () => {
                   
                   {gameHistory.length > 5 && (
                     <button
-                      onClick={() => handleReplayFromPosition(Math.floor(gameHistory.length / 2))}
+                      onClick={() => handleContinueFromPosition(Math.floor(gameHistory.length / 2))}
                       className="flex-1 bg-purple-600 hover:bg-purple-700 text-white font-medium py-2 px-3 rounded-lg transition-colors duration-200 flex items-center justify-center gap-2 text-sm"
                     >
                       <Repeat className="w-3 h-3" />
@@ -256,7 +256,7 @@ const GameResultModal: React.FC = () => {
                   
                   {gameHistory.length > 2 && (
                     <button
-                      onClick={() => handleReplayFromPosition(gameHistory.length - 3)}
+                      onClick={() => handleContinueFromPosition(gameHistory.length - 3)}
                       className="flex-1 bg-purple-600 hover:bg-purple-700 text-white font-medium py-2 px-3 rounded-lg transition-colors duration-200 flex items-center justify-center gap-2 text-sm"
                     >
                       <Repeat className="w-3 h-3" />

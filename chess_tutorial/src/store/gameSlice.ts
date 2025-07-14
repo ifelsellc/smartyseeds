@@ -66,12 +66,51 @@ const loadSavedPositions = (): SavedPosition[] => {
   try {
     const saved = localStorage.getItem('chess-saved-positions')
     if (saved) {
-      return JSON.parse(saved)
+      const positions = JSON.parse(saved)
+      if (positions.length > 0) {
+        return positions
+      }
     }
   } catch (error) {
     console.warn('Failed to load saved positions from localStorage:', error)
   }
-  return []
+  
+  // If no saved positions exist, create some demo positions
+  const demoPositions: SavedPosition[] = [
+    {
+      id: 'demo_opening_1',
+      name: 'Italian Game Opening',
+      description: 'Classic opening position after 1.e4 e5 2.Nf3 Nc6 3.Bc4',
+      fen: 'r1bqkbnr/pppp1ppp/2n5/4p3/2B1P3/5N2/PPPP1PPP/RNBQK2R b KQkq - 3 3',
+      moveIndex: 5,
+      createdAt: Date.now() - 86400000, // 1 day ago
+      gameHistory: [
+        { move: 'e2-e4', fen: 'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1', san: 'e4', timestamp: Date.now() - 86400000 },
+        { move: 'e7-e5', fen: 'rnbqkbnr/pppp1ppp/8/4p3/4P3/8/PPPP1PPP/RNBQKBNR w KQkq e6 0 2', san: 'e5', timestamp: Date.now() - 86400000 },
+        { move: 'g1-f3', fen: 'rnbqkbnr/pppp1ppp/8/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R b KQkq - 1 2', san: 'Nf3', timestamp: Date.now() - 86400000 },
+        { move: 'b8-c6', fen: 'r1bqkbnr/pppp1ppp/2n5/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R w KQkq - 2 3', san: 'Nc6', timestamp: Date.now() - 86400000 },
+        { move: 'f1-c4', fen: 'r1bqkbnr/pppp1ppp/2n5/4p3/2B1P3/5N2/PPPP1PPP/RNBQK2R b KQkq - 3 3', san: 'Bc4', timestamp: Date.now() - 86400000 }
+      ]
+    },
+    {
+      id: 'demo_middlegame_1',
+      name: 'Tactical Position',
+      description: 'Interesting middlegame position with tactical opportunities',
+      fen: 'r2qkb1r/ppp2ppp/2n1bn2/3pp3/2B1P3/3P1N2/PPP2PPP/RNBQK2R w KQkq - 0 6',
+      moveIndex: 10,
+      createdAt: Date.now() - 3600000, // 1 hour ago
+      gameHistory: []
+    }
+  ]
+  
+  // Save demo positions to localStorage
+  try {
+    localStorage.setItem('chess-saved-positions', JSON.stringify(demoPositions))
+  } catch (error) {
+    console.warn('Failed to save demo positions to localStorage:', error)
+  }
+  
+  return demoPositions
 }
 
 const initialState: GameState = {
@@ -218,6 +257,11 @@ const gameSlice = createSlice({
 
     undoMove: (state) => {
       if (state.currentMoveIndex >= 0) {
+        // Auto-pause when undoing moves to prevent accidental moves
+        if (state.status === 'playing') {
+          state.status = 'paused'
+        }
+        
         state.currentMoveIndex--
         if (state.currentMoveIndex >= 0) {
           // Load the game state at this point
@@ -250,6 +294,12 @@ const gameSlice = createSlice({
       const moveIndex = action.payload
       
       if (moveIndex >= -1 && moveIndex < state.gameHistory.length) {
+        // Auto-pause if navigating to a position that's not the latest move
+        // This prevents accidental moves while browsing history
+        if (moveIndex < state.gameHistory.length - 1 && state.status === 'playing') {
+          state.status = 'paused'
+        }
+        
         state.currentMoveIndex = moveIndex
         
         if (moveIndex >= 0) {
@@ -333,7 +383,7 @@ const gameSlice = createSlice({
       state.showResultModal = false
     },
 
-    replayFromPosition: (state, action: PayloadAction<number>) => {
+    continueFromPosition: (state, action: PayloadAction<number>) => {
       const moveIndex = action.payload
       
       if (moveIndex >= -1 && moveIndex < state.gameHistory.length) {
@@ -439,7 +489,7 @@ const gameSlice = createSlice({
       }
     },
 
-    confirmReplayFromPreview: (state) => {
+    confirmContinueFromPreview: (state) => {
       if (state.positionBrowser.isPreviewMode) {
         const moveIndex = state.currentMoveIndex
         
@@ -597,11 +647,11 @@ export const {
   startAIMoveAnimation,
   endAIMoveAnimation,
   dismissResultModal,
-  replayFromPosition,
+  continueFromPosition,
   openPositionBrowser,
   closePositionBrowser,
   previewPosition,
-  confirmReplayFromPreview,
+  confirmContinueFromPreview,
   saveCurrentPosition,
   loadSavedPosition,
   deleteSavedPosition,
